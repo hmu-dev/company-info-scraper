@@ -1,0 +1,17 @@
+
+# Test the API with curl
+
+# 1. Health check:
+curl -X GET http://localhost:8000/
+
+# 2. Scrape a website (replace URL as needed):
+curl -X POST http://localhost:8000/scrape \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"url\": \"https://www.openai.com\",
+    \"model\": \"gpt-3.5-turbo\"
+  }"
+
+# 3. View API documentation:
+# Open http://localhost:8000/docs in your browser
+
