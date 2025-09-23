@@ -1,8 +1,10 @@
-from fastapi import Request, Response
-from typing import Optional, Dict, List
 import gzip
-import brotli
 import zlib
+from typing import Dict, List, Optional
+
+import brotli
+from fastapi import Request, Response
+
 from ..utils.logging import log_event
 
 
@@ -95,8 +97,22 @@ class CompressionMiddleware:
 
         return None
 
-    async def __call__(self, request: Request, call_next):
+    async def __call__(self, scope, receive, send):
         """Process request with compression"""
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        from fastapi import Request
+
+        request = Request(scope, receive)
+
+        async def call_next(request):
+            async def send_wrapper(message):
+                await send(message)
+
+            return await self.app(scope, receive, send_wrapper)
+
         # Get response
         response = await call_next(request)
 

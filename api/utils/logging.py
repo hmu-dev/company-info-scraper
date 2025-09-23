@@ -1,17 +1,24 @@
-import logging
 import json
+import logging
+import os
 import time
 from datetime import datetime
 from functools import wraps
 from typing import Any, Dict, Optional
+
 import boto3
 
 # Configure logging
 logger = logging.getLogger("ai_web_scraper")
 logger.setLevel(logging.INFO)
 
-# CloudWatch client
-cloudwatch = boto3.client("cloudwatch")
+# CloudWatch client - handle missing region gracefully
+try:
+    region = os.getenv("AWS_DEFAULT_REGION", "us-west-2")
+    cloudwatch = boto3.client("cloudwatch", region_name=region)
+except Exception as e:
+    logger.warning(f"Failed to initialize CloudWatch client: {e}")
+    cloudwatch = None
 
 
 def log_event(
@@ -29,6 +36,10 @@ def log_event(
 
 def publish_metrics(namespace: str, metrics: Dict[str, tuple]) -> None:
     """Publish metrics to CloudWatch"""
+    if cloudwatch is None:
+        logger.warning("CloudWatch client not available, skipping metrics")
+        return
+
     try:
         metric_data = [
             {

@@ -12,9 +12,9 @@ from typing import List, Optional
 import pytest
 
 from api.utils.pagination import (
-    Paginator,
     PaginationError,
     PaginationResult,
+    Paginator,
     decode_cursor,
     encode_cursor,
 )

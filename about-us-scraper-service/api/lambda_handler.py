@@ -1,16 +1,17 @@
 import json
-from typing import Dict, Any
-from .utils.logging import (
-    track_request,
-    log_llm_request,
-    log_media_metrics,
-    log_cache_metrics,
-)
+from typing import Any, Dict
+
 from fastapi import FastAPI
 from mangum import Mangum
 
 # Import your FastAPI app
-from .main import app
+from main import app
+from utils.logging import (
+    log_cache_metrics,
+    log_llm_request,
+    log_media_metrics,
+    track_request,
+)
 
 # Create Lambda handler
 handler = Mangum(app)

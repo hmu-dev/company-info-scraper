@@ -1,12 +1,14 @@
-from fastapi import APIRouter, HTTPException, Response
-from typing import List, Optional
-from ..models import ScrapeRequest, MediaResponse, MediaAsset, MediaMetadata
-from ..utils.storage import MediaStorage, StorageError
-from ..utils.pagination import paginate_items
-from ..utils.logging import log_event
-from ..services.html_parser import extract_media_from_html
-import time
 import os
+import time
+from typing import List, Optional
+
+from fastapi import APIRouter, HTTPException, Response
+
+from ..models import MediaAsset, MediaMetadata, MediaResponse, ScrapeRequest
+from ..services.html_parser import extract_media_from_html
+from ..utils.logging import log_event
+from ..utils.pagination import paginate_items
+from ..utils.storage import MediaStorage, StorageError
 
 router = APIRouter()
 

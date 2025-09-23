@@ -1,19 +1,22 @@
 """Unit tests for profile endpoint."""
 
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 from fastapi import Response
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
-from api.endpoints.profile import router
-from api.models import ScrapeRequest, ProfileResponse
-from api.services.llm import LLMService, LLMError
 from pydantic import HttpUrl
+
+from api.endpoints.profile import router
+from api.models import ProfileResponse, ScrapeRequest
+from api.services.llm import LLMError, LLMService
 
 
 @pytest.fixture
 def client():
     """Create FastAPI test client."""
     from fastapi import FastAPI
+
     from api.middleware.rate_limit import RateLimiter, RateLimitMiddleware
 
     app = FastAPI()

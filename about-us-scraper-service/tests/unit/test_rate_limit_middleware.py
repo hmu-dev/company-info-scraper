@@ -1,15 +1,17 @@
+import asyncio
+import time
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
+
 from api.middleware.rate_limit import (
     RateLimiter,
     RateLimitMiddleware,
     create_rate_limiter,
     setup_rate_limiting,
 )
-import time
-import asyncio
 
 
 @pytest.fixture

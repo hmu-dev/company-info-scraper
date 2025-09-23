@@ -1,17 +1,18 @@
 # FastAPI-based Web Scraper API
-from fastapi import FastAPI
-from pydantic import BaseModel, HttpUrl
-import requests
-import os
-import json
 import base64
-from urllib.parse import urljoin, urlparse
-from scrapegraphai.graphs import SmartScraperGraph
-from bs4 import BeautifulSoup
+import json
+import os
 import re
-from PIL import Image
 from io import BytesIO
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+from urllib.parse import urljoin, urlparse
+
+import requests
+from bs4 import BeautifulSoup
+from fastapi import FastAPI
+from PIL import Image
+from pydantic import BaseModel, HttpUrl
+from scrapegraphai.graphs import SmartScraperGraph
 
 # Default API key - replace with your actual key
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")

@@ -1,10 +1,12 @@
-from fastapi import Request, HTTPException
-from fastapi.responses import JSONResponse
-from typing import Optional, List, Dict, Any
-import re
 import html
-import validators
+import re
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
+
+import validators
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
+
 from ..utils.logging import log_event
 
 

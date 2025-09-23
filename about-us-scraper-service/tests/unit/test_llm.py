@@ -1,9 +1,11 @@
-import pytest
-from unittest.mock import Mock, AsyncMock, patch, ANY
 import json
 import time
+from unittest.mock import ANY, AsyncMock, Mock, patch
+
+import pytest
 from botocore.exceptions import ClientError
-from api.services.llm import LLMService, LLMError
+
+from api.services.llm import LLMError, LLMService
 
 
 @pytest.fixture

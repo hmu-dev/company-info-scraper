@@ -1,6 +1,7 @@
 import base64
 import json
-from typing import List, TypeVar, Generic, Optional, Tuple
+from typing import Generic, List, Optional, Tuple, TypeVar
+
 from ..models import PaginationMeta
 
 T = TypeVar("T")

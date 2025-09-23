@@ -3,12 +3,14 @@ Unit tests for media.py
 """
 
 import json
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
+
+from api.models import MediaAsset, MediaMetadata
 from api.services.media import MediaService
 from api.utils.retry import MediaProcessingError
 from api.utils.storage import MediaStorage
-from api.models import MediaAsset, MediaMetadata
 
 
 @pytest.fixture
@@ -81,8 +83,9 @@ async def test_download_image_success(mock_get, media_service, mock_image_respon
     mock_get.return_value = mock_image_response
     mock_image_response.status_code = 200
     # Create a small test image
-    from PIL import Image
     from io import BytesIO
+
+    from PIL import Image
 
     img = Image.new("RGB", (100, 100), color="red")
     img_bytes = BytesIO()

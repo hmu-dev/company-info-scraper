@@ -4,7 +4,7 @@
 
 ### Overview
 
-This guide covers deploying the AI Web Scraper API to AWS using Terraform. The API uses Amazon Bedrock with Claude-Instant for content extraction and provides comprehensive monitoring and cost control.
+This guide covers deploying the AI Web Scraper API to AWS using AWS SAM (Serverless Application Model). The API uses Amazon Bedrock with Claude-Instant for content extraction and provides comprehensive monitoring and cost control.
 
 ### Architecture
 
@@ -22,7 +22,7 @@ The deployment uses the following AWS services:
 
 1. AWS Account with appropriate permissions
 2. AWS CLI configured
-3. Terraform installed (v1.0.0+)
+3. AWS SAM CLI installed
 4. Access to Amazon Bedrock (request if needed)
 
 ### Environment Variables
@@ -57,29 +57,24 @@ LOG_RETENTION_DAYS=14
 
 ### Deployment Steps
 
-1. Initialize Terraform:
+1. Build the SAM application:
 
    ```bash
-   cd infrastructure
-   terraform init
+   cd about-us-scraper-service
+   sam build
    ```
 
-2. Review the plan:
+2. Deploy the application:
 
    ```bash
-   terraform plan \
-     -var="environment=$ENVIRONMENT" \
-     -var="project_name=$PROJECT_NAME" \
-     -var="aws_region=$AWS_REGION"
+   sam deploy --guided
    ```
 
-3. Apply the configuration:
-   ```bash
-   terraform apply \
-     -var="environment=$ENVIRONMENT" \
-     -var="project_name=$PROJECT_NAME" \
-     -var="aws_region=$AWS_REGION"
-   ```
+3. Follow the guided deployment prompts to configure:
+   - Stack name
+   - AWS Region
+   - Environment variables
+   - IAM roles
 
 ### Monitoring Setup
 
@@ -161,7 +156,7 @@ The deployment includes:
    - Usage trends
 
 3. Updates:
-   - Infrastructure as Code
+   - Serverless deployment
    - Version control
    - CI/CD pipeline
 
@@ -208,7 +203,7 @@ The deployment includes:
 - [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
 - [Claude-Instant Documentation](https://docs.anthropic.com/claude/docs)
 - [AWS Lambda Best Practices](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html)
-- [Terraform Documentation](https://www.terraform.io/docs)
+- [AWS SAM Documentation](https://docs.aws.amazon.com/serverless-application-model/)
 
 ### Support
 

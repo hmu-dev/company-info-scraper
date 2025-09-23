@@ -1,15 +1,17 @@
-from typing import Dict, Any, Optional, Tuple
-import aiohttp
 import asyncio
-import os
 import hashlib
 import mimetypes
-from PIL import Image
+import os
 from io import BytesIO
+from typing import Any, Dict, Optional, Tuple
+
+import aiohttp
 import cairosvg
 import ffmpeg
-from ..utils.retry import retryable, MediaProcessingError
+from PIL import Image
+
 from ..utils.logging import log_event
+from ..utils.retry import MediaProcessingError, retryable
 
 
 class MediaService:

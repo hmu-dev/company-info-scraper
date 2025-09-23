@@ -1,22 +1,25 @@
-from typing import Dict, Any, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 
 if TYPE_CHECKING:
     from ..utils.storage import MediaStorage
     from ..utils.cache import Cache
-import aiohttp
+
 import asyncio
-import os
 import hashlib
-import mimetypes
 import json
-from PIL import Image
+import mimetypes
+import os
 from io import BytesIO
+
+import aiohttp
 import cairosvg
 import ffmpeg
 import requests
+from PIL import Image
+
 from ..models import MediaAsset, MediaMetadata
-from ..utils.retry import retryable, MediaProcessingError
 from ..utils.logging import log_event
+from ..utils.retry import MediaProcessingError, retryable
 
 
 class MediaService:

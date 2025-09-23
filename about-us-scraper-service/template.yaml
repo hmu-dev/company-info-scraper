@@ -89,8 +89,12 @@ Resources:
             Path: /v1/{proxy+}
             Method: ANY
       Policies:
-        - BedrockInvokeModelPolicy:
-            ModelId: anthropic.claude-instant-v1
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: !Sub "arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-instant-v1"
         - DynamoDBCrudPolicy:
             TableName: !Ref CacheTable
         - S3CrudPolicy:

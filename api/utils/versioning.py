@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Request, Response
-from typing import Dict, Any, Optional, List, Callable
 import re
+from typing import Any, Callable, Dict, List, Optional
+
 import semver
+from fastapi import FastAPI, Request, Response
+
 from ..utils.logging import log_event
 
 

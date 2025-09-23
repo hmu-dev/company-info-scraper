@@ -15,9 +15,10 @@ Models:
     - ErrorResponse: Standard error response model
 """
 
-from typing import Dict, List, Optional, Union
-from pydantic import BaseModel, Field, HttpUrl, constr, field_validator
 from datetime import datetime
+from typing import Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field, HttpUrl, constr, field_validator
 
 
 class CompanyProfile(BaseModel):

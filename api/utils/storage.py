@@ -1,10 +1,12 @@
-import boto3
-import os
 import hashlib
 import mimetypes
-from typing import Dict, Optional, Tuple
-from .logging import log_event
+import os
 from datetime import datetime, timedelta
+from typing import Dict, Optional, Tuple
+
+import boto3
+
+from .logging import log_event
 
 # Initialize S3 client
 s3 = boto3.client("s3")

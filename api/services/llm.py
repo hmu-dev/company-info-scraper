@@ -1,10 +1,12 @@
-from typing import Dict, Any, Optional
 import json
 import time
+from typing import Any, Dict, Optional
+
 import boto3
 from botocore.config import Config
-from ..utils.retry import retryable, LLMError
+
 from ..utils.logging import log_event
+from ..utils.retry import LLMError, retryable
 
 
 class LLMService:

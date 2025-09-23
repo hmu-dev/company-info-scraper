@@ -3,6 +3,7 @@ Unit tests for main.py
 """
 
 from unittest.mock import Mock, patch
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -11,12 +12,13 @@ def create_app():
     """Create a fresh FastAPI app for testing"""
     from fastapi import FastAPI
     from fastapi.middleware.cors import CORSMiddleware
-    from api.middleware.rate_limit import setup_rate_limiting
-    from api.middleware.validation import setup_validation
-    from api.middleware.compression import setup_compression
-    from api.middleware.tracing import setup_tracing
-    from api.utils.versioning import setup_versioning
+
     from api.endpoints import media, profile
+    from api.middleware.compression import setup_compression
+    from api.middleware.rate_limit import setup_rate_limiting
+    from api.middleware.tracing import setup_tracing
+    from api.middleware.validation import setup_validation
+    from api.utils.versioning import setup_versioning
 
     app = FastAPI(
         title="AI Web Scraper API",

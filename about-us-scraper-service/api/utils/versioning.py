@@ -7,9 +7,10 @@ comparison, validation, and middleware for handling version headers.
 
 import re
 from typing import Callable, Dict, Optional, Union
+
+import semver
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
-import semver
 
 
 class VersionError(Exception):

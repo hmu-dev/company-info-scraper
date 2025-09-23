@@ -6,10 +6,11 @@ exponential backoff, jitter, and error handling.
 """
 
 import asyncio
-import pytest
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import AsyncMock, Mock, patch
 
-from api.utils.retry import retryable, RetryableError, LLMError
+import pytest
+
+from api.utils.retry import LLMError, RetryableError, retryable
 
 
 class TestError(RetryableError):

@@ -1,6 +1,7 @@
 import json
-from ddgs import DDGS
 import random
+
+from ddgs import DDGS
 
 
 def generate_urls(max_total=200):

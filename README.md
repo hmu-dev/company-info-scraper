@@ -1,11 +1,11 @@
 # 🕵️‍♂️ AI Web Scraper
 
-A powerful AI-driven web scraping tool that extracts comprehensive company profiles including text content and media files. Built with Streamlit for the UI and FastAPI for programmatic access.
+A powerful AI-driven web scraping tool that extracts comprehensive company profiles including text content and media files. Built with FastAPI for robust API access and serverless deployment.
 
 ## ✨ Features
 
 - **🤖 AI-Powered Content Extraction**: Uses OpenAI's GPT models to intelligently extract company information
-- **📱 Beautiful Streamlit UI**: Interactive web interface for easy scraping
+- **🚀 FastAPI Service**: High-performance API service with automatic documentation
 - **🚀 FastAPI Backend**: RESTful API for programmatic access
 - **🖼️ Media Extraction**: Downloads and processes images and videos
 - **🔍 Smart Navigation**: Automatically finds relevant "About Us" pages
@@ -14,7 +14,7 @@ A powerful AI-driven web scraping tool that extracts comprehensive company profi
   - Our Culture
   - Our Team
   - Noteworthy & Differentiated
-- **🔐 Secure Configuration**: API keys managed through Streamlit secrets
+- **🔐 Secure Configuration**: API keys managed through environment variables
 - **🌐 Public Hosting**: Easy deployment with multiple hosting options
 
 ## 🔬 How It Works
@@ -200,13 +200,12 @@ This multi-stage approach ensures that the AI Web Scraper delivers comprehensive
 
 4. **Configure API key**
 
-   **For Streamlit UI:**
+   **For API Service:**
 
-   - Create `.streamlit/secrets.toml` file:
+   - Set environment variables:
 
-   ```toml
-   [secrets]
-   OPENAI_API_KEY = "your-openai-api-key-here"
+   ```bash
+   export OPENAI_API_KEY="your-openai-api-key-here"
    ```
 
    **For API Only:**
@@ -217,13 +216,14 @@ This multi-stage approach ensures that the AI Web Scraper delivers comprehensive
 
 ### Running the Application
 
-#### Option 1: Streamlit UI (Full Service)
+#### Option 1: FastAPI Service (Full API)
 
 ```bash
-streamlit run ai_scrapper.py
+cd about-us-scraper-service
+python -m api.main
 ```
 
-Access at: `http://localhost:8501`
+Access at: `http://localhost:8000`
 
 #### Option 2: FastAPI Only (Lightweight)
 
@@ -260,7 +260,7 @@ Creates a public URL for remote access.
 
 ## 📖 Usage
 
-### Streamlit UI
+### FastAPI Service
 
 1. Open the web interface
 2. Enter a company website URL
@@ -287,16 +287,17 @@ print(f"Media files: {len(result['media'])}")
 
 ```
 ai-web-scraper/
-├── ai_scrapper.py              # Main Streamlit application (UI)
+├── ai_scrapper.py              # Legacy Streamlit application (deprecated)
 ├── api.py                      # FastAPI backend (API service)
 ├── requirements.txt            # Full dependencies (UI + API)
 ├── requirements-api.txt        # API-only dependencies (lightweight)
 ├── start_api.sh               # API service startup script
 ├── Dockerfile.api             # Docker image for API service
 ├── docker-compose.api.yml     # Docker Compose for API service
-├── .streamlit/
-│   ├── config.toml            # Streamlit configuration
-│   └── secrets.toml           # API key storage
+├── about-us-scraper-service/   # Main API service directory
+│   ├── api/                   # FastAPI application code
+│   ├── template.yaml          # AWS SAM template
+│   └── requirements.txt       # API service dependencies
 ├── .gitignore                 # Git ignore rules
 ├── start_public_server.sh     # Public hosting script
 ├── test_api_simple.py         # API testing script
@@ -321,13 +322,13 @@ The application comes with a comprehensive pre-configured prompt that extracts:
 
 ### API Key Management
 
-- **Streamlit**: Uses `st.secrets` for secure key storage
+- **Environment Variables**: Uses standard environment variable storage
 - **FastAPI**: Hardcoded default key with optional override
 - **Environment**: Can also use environment variables
 
 ## 🌐 Deployment Options
 
-1. **Streamlit Community Cloud**: Free cloud hosting
+1. **AWS Lambda**: Serverless deployment with SAM
 2. **Local Public Access**: Using serveo.net or ngrok
 3. **Docker**: Containerized deployment
 4. **Cloud Platforms**: AWS, GCP, Azure

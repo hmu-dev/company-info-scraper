@@ -1,9 +1,10 @@
 """HTML parsing service for extracting media content."""
 
 from typing import List, Tuple
+from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 
 
 def extract_media_from_html(url: str) -> List[Tuple[str, str, str]]:

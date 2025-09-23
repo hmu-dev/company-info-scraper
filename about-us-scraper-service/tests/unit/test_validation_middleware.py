@@ -1,13 +1,15 @@
+import json
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
+
 from api.middleware.validation import (
     RequestValidator,
     ValidationMiddleware,
     setup_validation,
 )
-import json
 
 
 @pytest.fixture

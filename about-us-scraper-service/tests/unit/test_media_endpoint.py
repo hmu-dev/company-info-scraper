@@ -1,12 +1,14 @@
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 from fastapi import Response
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
-from api.endpoints.media import router, calculate_priority
-from api.models import ScrapeRequest, MediaAsset, MediaMetadata
-from api.utils.storage import MediaStorage, StorageError
-from api.utils.pagination import PaginationMeta
 from pydantic import HttpUrl
+
+from api.endpoints.media import calculate_priority, router
+from api.models import MediaAsset, MediaMetadata, ScrapeRequest
+from api.utils.pagination import PaginationMeta
+from api.utils.storage import MediaStorage, StorageError
 
 
 @pytest.fixture

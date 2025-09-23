@@ -1,6 +1,8 @@
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 from requests.exceptions import HTTPError
+
 from api.services.html_parser import extract_media_from_html
 
 

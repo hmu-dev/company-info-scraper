@@ -4,7 +4,9 @@ Unit tests for lambda_handler.py
 
 import json
 from unittest.mock import Mock, patch
+
 import pytest
+
 from api.lambda_handler import lambda_handler
 
 

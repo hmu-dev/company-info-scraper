@@ -1,18 +1,20 @@
+import json
+import re
+import uuid
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
+
 from api.middleware.tracing import (
     TracingMiddleware,
-    setup_tracing,
     get_current_trace_context,
-    request_id,
-    trace_id,
     parent_id,
+    request_id,
+    setup_tracing,
+    trace_id,
 )
-import uuid
-import json
-import re
 
 
 @pytest.fixture

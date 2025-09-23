@@ -1,9 +1,11 @@
-from fastapi import Request, Response
-from typing import Optional, Dict, Any
-import uuid
-import time
 import contextvars
 import json
+import time
+import uuid
+from typing import Any, Dict, Optional
+
+from fastapi import Request, Response
+
 from ..utils.logging import log_event
 
 # Context variables for tracing

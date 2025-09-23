@@ -1,8 +1,8 @@
 import json
-import os
 import logging
+import os
+
 from scrapegraphai.graphs import SmartScraperGraph
-import toml  # Add this import
 
 logging.basicConfig(
     filename="scrape_test.log",
@@ -10,14 +10,10 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-# Load OPENAI_API_KEY from .streamlit/secrets.toml if available, else from env
-try:
-    secrets = toml.load(".streamlit/secrets.toml")
-    os.environ["OPENAI_API_KEY"] = secrets["secrets"]["OPENAI_API_KEY"]
-except FileNotFoundError:
-    os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
+# Load OPENAI_API_KEY from environment
+os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
 if not os.environ["OPENAI_API_KEY"]:
-    raise ValueError("OPENAI_API_KEY not found in secrets or environment")
+    raise ValueError("OPENAI_API_KEY not found in environment variables")
 
 graph_config = {
     "llm": {

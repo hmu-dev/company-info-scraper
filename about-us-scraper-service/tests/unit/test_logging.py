@@ -11,7 +11,7 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 import pytest
-from botocore.stub import Stubber, ANY
+from botocore.stub import ANY, Stubber
 
 from api.utils.logging import log_event, publish_metrics
 

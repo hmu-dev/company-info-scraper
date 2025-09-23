@@ -1,8 +1,10 @@
-from fastapi import Request, HTTPException
-from fastapi.responses import JSONResponse
-from typing import Optional, Dict, Tuple
-import time
 import asyncio
+import time
+from typing import Dict, Optional, Tuple
+
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
+
 from ..utils.logging import log_event
 
 
@@ -76,11 +78,26 @@ class RateLimitMiddleware:
         self.limiter = limiter
         self.exclude_paths = exclude_paths or []
 
-    async def __call__(self, request: Request, call_next):
+    async def __call__(self, scope, receive, send):
         """Process request with rate limiting"""
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        from fastapi import Request
+
+        request = Request(scope, receive)
+
+        async def call_next(request):
+            async def send_wrapper(message):
+                await send(message)
+
+            return await self.app(scope, receive, send_wrapper)
+
         # Skip rate limiting for excluded paths
         if any(request.url.path.startswith(path) for path in self.exclude_paths):
-            return await call_next(request)
+            await call_next(request)
+            return
 
         # Check rate limit
         if not await self.limiter.is_allowed(request):
@@ -97,16 +114,18 @@ class RateLimitMiddleware:
                 },
             )
 
-            return JSONResponse(
+            from fastapi.responses import JSONResponse
+
+            response = JSONResponse(
                 status_code=429,
                 content={"error": "Too Many Requests", "retry_after": retry_after},
                 headers={"Retry-After": str(int(retry_after))},
             )
+            await response(scope, receive, send)
+            return
 
         # Process request
-        response = await call_next(request)
-
-        return response
+        await call_next(request)
 
 
 def create_rate_limiter(

@@ -1,12 +1,14 @@
 """Unit tests for compression middleware."""
 
+import gzip
+import zlib
+
+import brotli
 import pytest
 from fastapi import FastAPI, Response
 from fastapi.testclient import TestClient
+
 from api.middleware.compression import CompressionMiddleware
-import gzip
-import brotli
-import zlib
 
 
 @pytest.fixture

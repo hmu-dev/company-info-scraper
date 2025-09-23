@@ -1,11 +1,22 @@
-import boto3
 import json
+import os
 import time
 from typing import Any, Dict, Optional, Tuple
+
+import boto3
+
 from .logging import log_cache_metrics
 
-# Initialize DynamoDB client
-dynamodb = boto3.client("dynamodb")
+# Initialize DynamoDB client - handle missing region gracefully
+try:
+    region = os.getenv("AWS_DEFAULT_REGION", "us-west-2")
+    dynamodb = boto3.client("dynamodb", region_name=region)
+except Exception as e:
+    import logging
+
+    logger = logging.getLogger("ai_web_scraper")
+    logger.warning(f"Failed to initialize DynamoDB client: {e}")
+    dynamodb = None
 
 
 class Cache:
@@ -25,6 +36,10 @@ class Cache:
         Get item from cache
         Returns (item, hit) where hit is True if cache hit, False if miss
         """
+        if dynamodb is None:
+            # Cache not available, return miss
+            return None, False
+
         start_time = time.time()
         try:
             response = dynamodb.get_item(
@@ -79,6 +94,10 @@ class Cache:
         self, url: str, data: Dict[str, Any], cache_type: str = "profile"
     ) -> bool:
         """Set item in cache"""
+        if dynamodb is None:
+            # Cache not available, return success (no-op)
+            return True
+
         start_time = time.time()
         try:
             # Convert data to JSON string
@@ -120,6 +139,10 @@ class Cache:
 
     async def delete(self, url: str, cache_type: str = "profile") -> bool:
         """Delete item from cache"""
+        if dynamodb is None:
+            # Cache not available, return success (no-op)
+            return True
+
         start_time = time.time()
         try:
             dynamodb.delete_item(

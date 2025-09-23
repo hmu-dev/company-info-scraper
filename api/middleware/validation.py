@@ -1,10 +1,12 @@
-from fastapi import Request, HTTPException
-from fastapi.responses import JSONResponse
-from typing import Optional, List, Dict, Any
-import re
 import html
-import validators
+import re
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
+
+import validators
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
+
 from ..utils.logging import log_event
 
 
@@ -151,8 +153,22 @@ class ValidationMiddleware:
         self.app = app
         self.validator = validator
 
-    async def __call__(self, request: Request, call_next):
+    async def __call__(self, scope, receive, send):
         """Process request with validation"""
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        from fastapi import Request
+
+        request = Request(scope, receive)
+
+        async def call_next(request):
+            async def send_wrapper(message):
+                await send(message)
+
+            return await self.app(scope, receive, send_wrapper)
+
         try:
             # Validate content length
             content_length = request.headers.get("content-length")
@@ -162,7 +178,9 @@ class ValidationMiddleware:
                     log_event(
                         "validation_error", {"type": "content_length", "error": error}
                     )
-                    return JSONResponse(status_code=413, content={"error": error})
+                    response = JSONResponse(status_code=413, content={"error": error})
+                    await response(scope, receive, send)
+                    return
 
             # For POST/PUT requests, validate body
             if request.method in ["POST", "PUT"]:
@@ -173,27 +191,32 @@ class ValidationMiddleware:
                         log_event(
                             "validation_error", {"type": "request_body", "error": error}
                         )
-                        return JSONResponse(status_code=400, content={"error": error})
+                        response = JSONResponse(
+                            status_code=400, content={"error": error}
+                        )
+                        await response(scope, receive, send)
+                        return
                 except Exception as e:
                     log_event(
                         "validation_error", {"type": "json_parse", "error": str(e)}
                     )
-                    return JSONResponse(
+                    response = JSONResponse(
                         status_code=400,
                         content={"error": "Invalid JSON in request body"},
                     )
+                    await response(scope, receive, send)
+                    return
 
             # Process request
-            response = await call_next(request)
-
-            return response
+            await call_next(request)
 
         except Exception as e:
             log_event("validation_error", {"type": "unexpected", "error": str(e)})
-            return JSONResponse(
+            response = JSONResponse(
                 status_code=500,
                 content={"error": "Internal server error during validation"},
             )
+            await response(scope, receive, send)
 
 
 def setup_validation(

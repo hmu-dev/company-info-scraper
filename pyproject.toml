@@ -25,7 +25,7 @@ skip_glob = ["*.pyi"]
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 default_section = "THIRDPARTY"
 known_first_party = ["api"]
-known_third_party = ["boto3", "botocore", "fastapi", "pydantic", "pytest", "streamlit", "scrapegraphai", "playwright", "pillow", "requests", "beautifulsoup4", "uvicorn", "python-multipart", "cairosvg", "ffmpeg-python"]
+known_third_party = ["boto3", "botocore", "fastapi", "pydantic", "pytest", "scrapegraphai", "playwright", "pillow", "requests", "beautifulsoup4", "uvicorn", "python-multipart", "cairosvg", "ffmpeg-python"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

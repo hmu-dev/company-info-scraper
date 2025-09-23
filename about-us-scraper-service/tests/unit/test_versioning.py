@@ -5,9 +5,11 @@ This module tests the API versioning implementation, including version
 parsing, validation, and deprecation handling.
 """
 
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import AsyncMock, Mock
+
 import pytest
 from fastapi import Request, Response
+
 from api.utils.versioning import (
     APIVersion,
     VersionError,

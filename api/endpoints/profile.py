@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, Response
+import time
 from typing import List, Optional
-from ..models import ScrapeRequest, ProfileResponse
+
+from fastapi import APIRouter, HTTPException, Response
+
+from ..models import ProfileResponse, ScrapeRequest
 from ..services.llm import LLMService
 from ..utils.logging import log_event
-import time
 
 router = APIRouter()
 

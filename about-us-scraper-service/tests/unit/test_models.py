@@ -1,17 +1,19 @@
-import pytest
 from datetime import datetime, timezone
-from pydantic import ValidationError, HttpUrl
+
+import pytest
+from pydantic import HttpUrl, ValidationError
+
 from api.models import (
+    BaseResponse,
     CompanyProfile,
-    MediaMetadata,
+    ErrorResponse,
     MediaAsset,
+    MediaMetadata,
+    MediaResponse,
     PaginationMeta,
+    ProfileResponse,
     ScrapeRequest,
     TokenUsage,
-    BaseResponse,
-    ProfileResponse,
-    MediaResponse,
-    ErrorResponse,
 )
 
 

@@ -1,8 +1,9 @@
 import asyncio
-from typing import TypeVar, Callable, Optional, List, Dict, Any
 import random
 import time
 from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, TypeVar
+
 from .logging import log_event
 
 T = TypeVar("T")

@@ -2,10 +2,11 @@
 """
 Test script for the AI Web Scraper API
 """
-import requests
-import json
 import base64
+import json
 import os
+
+import requests
 
 # API Configuration
 API_BASE_URL = "http://localhost:8000"

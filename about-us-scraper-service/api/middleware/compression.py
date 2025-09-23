@@ -1,9 +1,11 @@
-from fastapi import Request, Response
-from typing import Optional, Dict, List
 import gzip
-import brotli
-import zlib
 import io
+import zlib
+from typing import Dict, List, Optional
+
+import brotli
+from fastapi import Request, Response
+
 from ..utils.logging import log_event
 
 

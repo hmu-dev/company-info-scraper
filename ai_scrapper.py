@@ -1,22 +1,23 @@
 # Import the required libraries
-import streamlit as st
-import requests
-import os
+import base64
 import json
 import logging
-import traceback
-import sys
-import subprocess
-from datetime import datetime
-from urllib.parse import urljoin, urlparse
-from scrapegraphai.graphs import SmartScraperGraph
-import base64
-from io import BytesIO
-from PIL import Image
-from bs4 import BeautifulSoup
+import os
 import re
+import subprocess
+import sys
+import traceback
+from datetime import datetime
+from io import BytesIO
+from urllib.parse import urljoin, urlparse
+
 import cairosvg
 import ffmpeg
+import requests
+import streamlit as st
+from bs4 import BeautifulSoup
+from PIL import Image
+from scrapegraphai.graphs import SmartScraperGraph
 
 # Video constraints
 MAX_VIDEO_DURATION_SECONDS = 300  # 5 minutes

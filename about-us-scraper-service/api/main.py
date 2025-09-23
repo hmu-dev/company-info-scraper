@@ -1,12 +1,14 @@
+import os
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from api.middleware.rate_limit import setup_rate_limiting
-from api.middleware.validation import setup_validation
-from api.middleware.compression import setup_compression
-from api.middleware.tracing import setup_tracing
-from api.utils.versioning import setup_versioning
-from api.endpoints import media, profile
-import os
+
+from endpoints import media, profile
+from middleware.compression import setup_compression
+from middleware.rate_limit import setup_rate_limiting
+from middleware.tracing import setup_tracing
+from middleware.validation import setup_validation
+from utils.versioning import setup_versioning
 
 app = FastAPI(
     title="AI Web Scraper API",

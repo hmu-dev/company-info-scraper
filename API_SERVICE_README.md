@@ -4,7 +4,7 @@ A lightweight, production-ready FastAPI service for extracting company informati
 
 ## 🎯 **API-Only Service**
 
-This service provides a clean, dependency-minimal API without the Streamlit UI components. Perfect for:
+This service provides a clean, dependency-minimal API service. Perfect for:
 
 - **Production deployments**
 - **Microservices architecture**
@@ -150,8 +150,8 @@ Perfect for Google Cloud Run, Azure Container Instances, or any container platfo
 
 ## 📊 **Performance Characteristics**
 
-- **Memory Usage**: ~50-100MB (vs 200-300MB with Streamlit)
-- **Startup Time**: ~2-3 seconds (vs 10-15 seconds with Streamlit)
+- **Memory Usage**: ~50-100MB
+- **Startup Time**: ~2-3 seconds
 - **Dependencies**: 8 core packages (vs 15+ with UI)
 - **Image Size**: ~200MB (vs 500MB+ with UI)
 
@@ -186,7 +186,7 @@ curl http://localhost:8000/health
 
 This API service intentionally excludes:
 
-- ❌ **Streamlit UI** (use the main project for interactive interface)
+- ❌ **Interactive UI** (API-only service)
 - ❌ **Playwright** (unless specifically needed for dynamic content)
 - ❌ **Advanced video processing** (ffmpeg-python)
 - ❌ **SVG processing** (cairosvg)
@@ -194,7 +194,7 @@ This API service intentionally excludes:
 
 ## 🔄 **Migration from Full Service**
 
-If you're currently using the full service with Streamlit:
+If you're currently using the full service with UI components:
 
 1. **Install API dependencies**: `pip install -r requirements-api.txt`
 2. **Set environment variables**: `export OPENAI_API_KEY="your-key"`

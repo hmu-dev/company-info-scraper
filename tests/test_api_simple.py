@@ -2,8 +2,9 @@
 """
 Simple test script for the AI Web Scraper API
 """
-import requests
 import json
+
+import requests
 
 # API endpoint
 API_URL = "http://localhost:8000"

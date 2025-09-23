@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # AI Web Scraper API Service Startup Script
-# This script starts only the API service without the Streamlit UI
+# This script starts the FastAPI service
 
 set -e
 

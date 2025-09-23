@@ -1,13 +1,15 @@
-import pytest
-from unittest.mock import Mock, AsyncMock, patch, ANY
 import json
 import os
 from io import BytesIO
-from PIL import Image
+from unittest.mock import ANY, AsyncMock, Mock, patch
+
 import ffmpeg
+import pytest
 import requests
-from api.services.media import MediaService, MediaProcessingError
+from PIL import Image
+
 from api.models import MediaAsset, MediaMetadata
+from api.services.media import MediaProcessingError, MediaService
 
 
 @pytest.fixture
