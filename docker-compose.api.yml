@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  ai-scraper-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PORT=8000
+      - HOST=0.0.0.0
+    volumes:
+      # Mount for development (optional)
+      - ./api.py:/app/api.py:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ai-scraper-api.rule=Host(`api.yourdomain.com`)"
+      - "traefik.http.services.ai-scraper-api.loadbalancer.server.port=8000"
+
+  # Optional: Add a reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ai-scraper-api
+    restart: unless-stopped
+    profiles:
+      - proxy

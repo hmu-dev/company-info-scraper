@@ -31,6 +31,7 @@ The service intelligently navigates websites to find the most relevant "About Us
 4. **Content Validation**: Verifies pages contain relevant keywords like "about us", "our team", "founded", etc.
 
 **Example Navigation Logic:**
+
 ```python
 # Searches for links containing about keywords
 about_keywords = ['about', 'about-us', 'company', 'our-story', 'our-team']
@@ -44,6 +45,7 @@ Once the optimal page is found, the service uses OpenAI's GPT models to intellig
 
 1. **Content Analysis**: The AI analyzes the entire page content, understanding context and relationships
 2. **Structured Extraction**: Uses a specialized prompt to extract information into four key categories:
+
    - **About Us**: Company overview, mission, locations, founding story
    - **Our Culture**: Values, working environment, company philosophy
    - **Our Team**: Key individuals, leadership, team structure
@@ -55,6 +57,7 @@ Once the optimal page is found, the service uses OpenAI's GPT models to intellig
    - Primary content vs. navigation/footer text
 
 **AI Prompt Strategy:**
+
 ```python
 # The AI is instructed to:
 # - Extract ONLY relevant company information
@@ -69,30 +72,34 @@ Once the optimal page is found, the service uses OpenAI's GPT models to intellig
 The service employs a dual approach to find relevant media assets:
 
 #### **A. HTML-Based Media Extraction**
+
 ```python
 # Searches for images with relevant context
 img_tags = soup.find_all('img')
 for img in img_tags:
     alt_text = img.get('alt', '').lower()
     src = img.get('src', '').lower()
-    
+
     # Prioritizes company/branding images
-    if any(keyword in alt_text for keyword in 
+    if any(keyword in alt_text for keyword in
            ['logo', 'brand', 'company', 'team', 'about']):
         # High priority: Company branding
-    elif not any(ui_element in src for ui_element in 
+    elif not any(ui_element in src for ui_element in
                  ['icon', 'button', 'arrow', 'cart']):
         # Medium priority: Content images
 ```
 
 #### **B. AI-Enhanced Media Discovery**
+
 The AI analyzes the extracted content to identify mentioned media:
+
 - Logos and branding materials
 - Team photos and founder images
 - Office and workplace images
 - Product and service visuals
 
 #### **C. Smart Media Prioritization**
+
 Each discovered media item receives a priority score:
 
 ```python
@@ -177,22 +184,35 @@ This multi-stage approach ensures that the AI Web Scraper delivers comprehensive
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies**
+3. **Choose your installation type**
 
+   **Option A: Full Service (UI + API)**
    ```bash
    pip install -r requirements.txt
    ```
 
+   **Option B: API Only (Lightweight)**
+   ```bash
+   pip install -r requirements-api.txt
+   ```
+
 4. **Configure API key**
+   
+   **For Streamlit UI:**
    - Create `.streamlit/secrets.toml` file:
    ```toml
    [secrets]
    OPENAI_API_KEY = "your-openai-api-key-here"
    ```
+   
+   **For API Only:**
+   ```bash
+   export OPENAI_API_KEY="your-openai-api-key-here"
+   ```
 
 ### Running the Application
 
-#### Option 1: Streamlit UI
+#### Option 1: Streamlit UI (Full Service)
 
 ```bash
 streamlit run ai_scrapper.py
@@ -200,16 +220,32 @@ streamlit run ai_scrapper.py
 
 Access at: `http://localhost:8501`
 
-#### Option 2: FastAPI
+#### Option 2: FastAPI Only (Lightweight)
 
 ```bash
-uvicorn api:app --reload
+# Quick start
+./start_api.sh
+
+# Or manually
+uvicorn api:app --reload --host 0.0.0.0 --port 8000
 ```
 
 - API: `http://localhost:8000`
 - Docs: `http://localhost:8000/docs`
+- Health: `http://localhost:8000/health`
 
-#### Option 3: Public Access
+#### Option 3: Docker (API Only)
+
+```bash
+# Build and run
+docker build -f Dockerfile.api -t ai-scraper-api .
+docker run -p 8000:8000 -e OPENAI_API_KEY="your-key" ai-scraper-api
+
+# Or use docker-compose
+docker-compose -f docker-compose.api.yml up
+```
+
+#### Option 4: Public Access (Full Service)
 
 ```bash
 ./start_public_server.sh
@@ -246,9 +282,13 @@ print(f"Media files: {len(result['media'])}")
 
 ```
 ai-web-scraper/
-├── ai_scrapper.py              # Main Streamlit application
-├── api.py                      # FastAPI backend
-├── requirements.txt            # Python dependencies
+├── ai_scrapper.py              # Main Streamlit application (UI)
+├── api.py                      # FastAPI backend (API service)
+├── requirements.txt            # Full dependencies (UI + API)
+├── requirements-api.txt        # API-only dependencies (lightweight)
+├── start_api.sh               # API service startup script
+├── Dockerfile.api             # Docker image for API service
+├── docker-compose.api.yml     # Docker Compose for API service
 ├── .streamlit/
 │   ├── config.toml            # Streamlit configuration
 │   └── secrets.toml           # API key storage
@@ -256,6 +296,7 @@ ai-web-scraper/
 ├── start_public_server.sh     # Public hosting script
 ├── test_api_simple.py         # API testing script
 ├── README.md                  # This file
+├── API_SERVICE_README.md      # API-only service documentation
 ├── API_README.md              # API documentation
 ├── DEPLOYMENT_GUIDE.md        # Deployment instructions
 └── PUBLIC_HOSTING_GUIDE.md    # Public hosting options

@@ -1,11 +1,19 @@
-streamlit 
-scrapegraphai
-playwright
-pillow
-requests
-beautifulsoup4
-fastapi
-uvicorn
-python-multipart
-cairosvg
-ffmpeg-python
+# UI Dependencies (for Streamlit interface)
+streamlit>=1.28.0
+
+# API Dependencies (for FastAPI service)
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Shared Dependencies (used by both UI and API)
+scrapegraphai>=0.1.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+pillow>=10.0.0
+pydantic>=2.4.0
+
+# Optional Dependencies (for advanced features)
+playwright>=1.40.0  # For dynamic content scraping
+cairosvg>=2.7.0     # For SVG processing
+ffmpeg-python>=0.2.0  # For video processing
