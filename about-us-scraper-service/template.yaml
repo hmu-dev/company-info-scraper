@@ -1,0 +1,358 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: AI Web Scraper API with Bedrock integration
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+
+  DailyCostThreshold:
+    Type: Number
+    Default: 10.0
+    Description: Daily cost threshold in USD
+
+  HourlyBedrockCostThreshold:
+    Type: Number
+    Default: 1.0
+    Description: Hourly Bedrock cost threshold in USD
+
+  RateLimitRPM:
+    Type: Number
+    Default: 60
+    Description: Requests per minute limit
+
+  RateLimitBurst:
+    Type: Number
+    Default: 10
+    Description: Rate limit burst size
+
+  LogRetentionDays:
+    Type: Number
+    Default: 14
+    Description: CloudWatch log retention in days
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Timeout: 30
+    MemorySize: 512
+    Environment:
+      Variables:
+        ENVIRONMENT: !Ref Environment
+        DYNAMODB_TABLE: !Ref CacheTable
+        S3_BUCKET: !Ref MediaBucket
+        CLOUDFRONT_DOMAIN: !GetAtt MediaCDN.DomainName
+        RATE_LIMIT_RPM: !Ref RateLimitRPM
+        RATE_LIMIT_BURST: !Ref RateLimitBurst
+
+Resources:
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: ["*"]
+        AllowHeaders: ["*"]
+        AllowMethods: ["*"]
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: !Ref RateLimitBurst
+        ThrottlingRateLimit: !Ref RateLimitRPM
+      AccessLogSettings:
+        DestinationArn: !GetAtt ApiLogGroup.Arn
+        Format: >-
+          {
+            "requestId": "$context.requestId",
+            "ip": "$context.identity.sourceIp",
+            "requestTime": "$context.requestTime",
+            "httpMethod": "$context.httpMethod",
+            "routeKey": "$context.routeKey",
+            "status": "$context.status",
+            "protocol": "$context.protocol",
+            "responseLength": "$context.responseLength",
+            "error": "$context.error.message"
+          }
+
+  # Lambda Functions
+  ScraperFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: lambda_handler.lambda_handler
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /v1/{proxy+}
+            Method: ANY
+      Policies:
+        - BedrockInvokeModelPolicy:
+            ModelId: anthropic.claude-instant-v1
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CacheTable
+        - S3CrudPolicy:
+            BucketName: !Ref MediaBucket
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cloudwatch:PutMetricData
+              Resource: "*"
+
+  # DynamoDB Cache Table
+  CacheTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: url
+          AttributeType: S
+        - AttributeName: type
+          AttributeType: S
+      KeySchema:
+        - AttributeName: url
+          KeyType: HASH
+        - AttributeName: type
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+  # S3 Media Bucket
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldMedia
+            Status: Enabled
+            ExpirationInDays: 30
+
+  # CloudFront Distribution
+  MediaCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultCacheBehavior:
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          DefaultTTL: 3600
+          MaxTTL: 86400
+          MinTTL: 0
+        Origins:
+          - DomainName: !GetAtt MediaBucket.DomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${MediaCDNOriginAccessIdentity}
+
+  MediaCDNOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub ${AWS::StackName} OAI
+
+  # CloudWatch Monitoring
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: !Ref LogRetentionDays
+
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ScraperFunction}
+      RetentionInDays: !Ref LogRetentionDays
+
+  # CloudWatch Alarms
+  HighErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-high-error-rate
+      MetricName: Errors
+      Namespace: AiWebScraper
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions: [!Ref AlertsTopic]
+      Dimensions:
+        - Name: Environment
+          Value: !Ref Environment
+
+  HighLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-high-latency
+      MetricName: RequestDuration
+      Namespace: AiWebScraper
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions: [!Ref AlertsTopic]
+      Dimensions:
+        - Name: Environment
+          Value: !Ref Environment
+
+  DailyCostAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-daily-cost
+      MetricName: EstimatedCharges
+      Namespace: AWS/Billing
+      Statistic: Maximum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: !Ref DailyCostThreshold
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions: [!Ref AlertsTopic]
+      Dimensions:
+        - Name: Currency
+          Value: USD
+
+  BedrockCostAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub ${AWS::StackName}-bedrock-cost
+      MetricName: cost_estimate_usd
+      Namespace: AiWebScraper
+      Statistic: Sum
+      Period: 3600
+      EvaluationPeriods: 1
+      Threshold: !Ref HourlyBedrockCostThreshold
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions: [!Ref AlertsTopic]
+      Dimensions:
+        - Name: Environment
+          Value: !Ref Environment
+        - Name: Model
+          Value: anthropic.claude-instant-v1
+
+  # SNS Topic for Alerts
+  AlertsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub ${AWS::StackName}-alerts
+
+  # AWS Budget
+  Budget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: !Sub ${AWS::StackName}-monthly
+        BudgetLimit:
+          Amount: 100
+          Unit: USD
+        TimeUnit: MONTHLY
+        BudgetType: COST
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: SNS
+              Address: !Ref AlertsTopic
+
+  # CloudWatch Dashboard
+  MainDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub ${AWS::StackName}-metrics
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AiWebScraper", "RequestDuration", "Environment", "${Environment}", {"stat": "Average"}],
+                  [".", "LLMLatency", ".", ".", {"stat": "Average"}],
+                  [".", "MediaProcessingTime", ".", ".", {"stat": "Average"}]
+                ],
+                "period": 300,
+                "title": "API Performance"
+              }
+            },
+            {
+              "type": "metric",
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AiWebScraper", "PromptTokens", "Environment", "${Environment}", {"stat": "Sum"}],
+                  [".", "CompletionTokens", ".", ".", {"stat": "Sum"}]
+                ],
+                "period": 3600,
+                "title": "Token Usage"
+              }
+            },
+            {
+              "type": "metric",
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AiWebScraper", "cost_estimate_usd", "Model", "anthropic.claude-instant-v1", {"stat": "Sum"}]
+                ],
+                "period": 3600,
+                "title": "Bedrock Cost"
+              }
+            },
+            {
+              "type": "metric",
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  ["AiWebScraper", "Errors", "Environment", "${Environment}", {"stat": "Sum"}]
+                ],
+                "period": 300,
+                "title": "Error Count"
+              }
+            }
+          ]
+        }
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/
+
+  MediaCDNDomain:
+    Description: CloudFront distribution domain
+    Value: !GetAtt MediaCDN.DomainName
+
+  CacheTableName:
+    Description: DynamoDB cache table name
+    Value: !Ref CacheTable
+
+  MediaBucketName:
+    Description: S3 media bucket name
+    Value: !Ref MediaBucket

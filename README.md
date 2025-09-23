@@ -20,23 +20,27 @@ A powerful AI-driven web scraping tool that extracts comprehensive company profi
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Python 3.8+
 - OpenAI API key
 
 ### Installation
 
 1. **Clone or download this project**
+
    ```bash
    cd ai-web-scraper
    ```
 
 2. **Set up virtual environment**
+
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -51,27 +55,34 @@ A powerful AI-driven web scraping tool that extracts comprehensive company profi
 ### Running the Application
 
 #### Option 1: Streamlit UI
+
 ```bash
 streamlit run ai_scrapper.py
 ```
+
 Access at: `http://localhost:8501`
 
 #### Option 2: FastAPI
+
 ```bash
 uvicorn api:app --reload
 ```
+
 - API: `http://localhost:8000`
 - Docs: `http://localhost:8000/docs`
 
 #### Option 3: Public Access
+
 ```bash
 ./start_public_server.sh
 ```
+
 Creates a public URL for remote access.
 
 ## 📖 Usage
 
 ### Streamlit UI
+
 1. Open the web interface
 2. Enter a company website URL
 3. The default company profile prompt is pre-loaded
@@ -79,6 +90,7 @@ Creates a public URL for remote access.
 5. View extracted content and downloaded media
 
 ### API Usage
+
 ```python
 import requests
 
@@ -114,7 +126,9 @@ ai-web-scraper/
 ## 🔧 Configuration
 
 ### Default Company Profile Prompt
+
 The application comes with a comprehensive pre-configured prompt that extracts:
+
 - Company overview and locations
 - Culture and values
 - Team information
@@ -122,6 +136,7 @@ The application comes with a comprehensive pre-configured prompt that extracts:
 - Relevant branding media
 
 ### API Key Management
+
 - **Streamlit**: Uses `st.secrets` for secure key storage
 - **FastAPI**: Hardcoded default key with optional override
 - **Environment**: Can also use environment variables
@@ -138,11 +153,13 @@ See `DEPLOYMENT_GUIDE.md` for detailed instructions.
 ## 🧪 Testing
 
 ### Test the API
+
 ```bash
 python test_api_simple.py
 ```
 
 ### Test with curl
+
 ```bash
 curl -X POST http://localhost:8000/scrape \
   -H "Content-Type: application/json" \
@@ -159,6 +176,7 @@ curl -X POST http://localhost:8000/scrape \
 ## 🤝 Contributing
 
 This project was developed through collaborative AI-assisted programming. The codebase includes:
+
 - Robust error handling
 - Media extraction and processing
 - Smart website navigation
@@ -171,6 +189,7 @@ This project is open source and available under standard open source licensing.
 ## 🆘 Support
 
 For issues or questions:
+
 1. Check the documentation files
 2. Review the test scripts for usage examples
 3. Examine the API documentation at `/docs`

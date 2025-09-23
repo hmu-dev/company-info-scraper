@@ -1,0 +1,29 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /v1/profile",
+  "rawPath": "/v1/profile",
+  "rawQueryString": "",
+  "headers": {
+    "content-type": "application/json"
+  },
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "api-id",
+    "domainName": "id.execute-api.us-west-2.amazonaws.com",
+    "domainPrefix": "id",
+    "http": {
+      "method": "POST",
+      "path": "/v1/profile",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "IP",
+      "userAgent": "agent"
+    },
+    "requestId": "id",
+    "routeKey": "POST /v1/profile",
+    "stage": "$default",
+    "time": "12/Mar/2024:19:03:58 +0000",
+    "timeEpoch": 1710180238
+  },
+  "body": "{\"url\":\"https://example.com\"}",
+  "isBase64Encoded": false
+}

@@ -1,5 +1,231 @@
 # 🌐 AI Web Scraper Deployment Guide
 
+## AWS Deployment with Bedrock
+
+### Overview
+
+This guide covers deploying the AI Web Scraper API to AWS using Terraform. The API uses Amazon Bedrock with Claude-Instant for content extraction and provides comprehensive monitoring and cost control.
+
+### Architecture
+
+The deployment uses the following AWS services:
+
+- API Gateway: HTTP API for request handling
+- Lambda: Serverless compute for API endpoints
+- Bedrock: LLM service (Claude-Instant model)
+- DynamoDB: Caching layer
+- S3 + CloudFront: Media storage and delivery
+- CloudWatch: Logging and monitoring
+- AWS Budgets: Cost control
+
+### Prerequisites
+
+1. AWS Account with appropriate permissions
+2. AWS CLI configured
+3. Terraform installed (v1.0.0+)
+4. Access to Amazon Bedrock (request if needed)
+
+### Environment Variables
+
+Create a `.env` file with:
+
+```bash
+# AWS Configuration
+AWS_REGION=us-west-2
+AWS_PROFILE=default
+
+# Environment
+ENVIRONMENT=dev
+PROJECT_NAME=ai-web-scraper
+
+# API Configuration
+MAX_URL_LENGTH=2048
+MAX_CONTENT_LENGTH=10485760  # 10MB
+BLOCKED_DOMAINS=""
+
+# Rate Limiting
+RATE_LIMIT_RPM=60
+RATE_LIMIT_BURST=10
+
+# Cost Thresholds
+DAILY_COST_THRESHOLD=10.0  # $10/day
+HOURLY_BEDROCK_COST_THRESHOLD=1.0  # $1/hour
+
+# Monitoring
+LOG_RETENTION_DAYS=14
+```
+
+### Deployment Steps
+
+1. Initialize Terraform:
+
+   ```bash
+   cd infrastructure
+   terraform init
+   ```
+
+2. Review the plan:
+
+   ```bash
+   terraform plan \
+     -var="environment=$ENVIRONMENT" \
+     -var="project_name=$PROJECT_NAME" \
+     -var="aws_region=$AWS_REGION"
+   ```
+
+3. Apply the configuration:
+   ```bash
+   terraform apply \
+     -var="environment=$ENVIRONMENT" \
+     -var="project_name=$PROJECT_NAME" \
+     -var="aws_region=$AWS_REGION"
+   ```
+
+### Monitoring Setup
+
+The deployment includes:
+
+1. CloudWatch Dashboards:
+
+   - API performance metrics
+   - Cost tracking
+   - Token usage
+   - Error rates
+
+2. CloudWatch Alarms:
+
+   - High error rate (>10% in 5 minutes)
+   - High latency (>10 seconds)
+   - Daily cost threshold
+   - Hourly Bedrock cost threshold
+
+3. Cost Reports:
+   - Monthly AWS Cost and Usage reports
+   - Hourly granularity
+   - Resource-level details
+
+### Cost Control
+
+1. AWS Budgets:
+
+   - Monthly budget with alerts
+   - 80% actual usage alert
+   - 100% forecasted usage alert
+
+2. Bedrock Costs:
+
+   - Claude-Instant pricing:
+     - Input: $0.00163/1K tokens
+     - Output: $0.00551/1K tokens
+   - Hourly cost monitoring
+   - Automatic alerts
+
+3. DynamoDB Caching:
+   - Reduces duplicate LLM calls
+   - TTL-based expiration
+   - Pay-per-request pricing
+
+### Security
+
+1. IAM Roles:
+
+   - Least privilege access
+   - Service-specific permissions
+   - Resource-level restrictions
+
+2. Network Security:
+
+   - Private VPC configuration
+   - CloudFront for media delivery
+   - API Gateway authorization
+
+3. Data Protection:
+   - S3 encryption
+   - CloudWatch log encryption
+   - No PII storage
+
+### Maintenance
+
+1. Logging:
+
+   - Structured JSON logs
+   - Request tracing
+   - Cost tracking
+   - Performance metrics
+
+2. Monitoring:
+
+   - Real-time dashboards
+   - Automated alerts
+   - Cost forecasting
+   - Usage trends
+
+3. Updates:
+   - Infrastructure as Code
+   - Version control
+   - CI/CD pipeline
+
+### Troubleshooting
+
+1. Common Issues:
+
+   - Rate limiting: Check `RATE_LIMIT_RPM`
+   - Cost alerts: Review usage patterns
+   - Latency: Monitor CloudWatch metrics
+
+2. CloudWatch Logs:
+
+   - Lambda logs: `/aws/lambda/ai-web-scraper-*`
+   - API Gateway logs: `/aws/apigateway/*`
+   - Cost metrics: `AWS/Billing`
+
+3. Support:
+   - AWS Support
+   - GitHub Issues
+   - Documentation
+
+### Best Practices
+
+1. Cost Optimization:
+
+   - Use caching effectively
+   - Monitor token usage
+   - Set appropriate alerts
+
+2. Performance:
+
+   - Enable compression
+   - Use CloudFront
+   - Implement retries
+
+3. Maintenance:
+   - Regular updates
+   - Log review
+   - Cost analysis
+
+### Resources
+
+- [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
+- [Claude-Instant Documentation](https://docs.anthropic.com/claude/docs)
+- [AWS Lambda Best Practices](https://docs.aws.amazon.com/lambda/latest/dg/best-practices.html)
+- [Terraform Documentation](https://www.terraform.io/docs)
+
+### Support
+
+For issues or questions:
+
+1. Check CloudWatch logs
+2. Review documentation
+3. Contact support team
+
+### License
+
+MIT License - see LICENSE file for details
+
+---
+
+## Alternative Deployment Options
+
 ## Quick Public Access with ngrok (5 minutes)
 
 ### Step 1: Start the Streamlit App
@@ -245,4 +471,3 @@ ngrok http 8501
 - [Heroku](https://heroku.com)
 - [DigitalOcean](https://digitalocean.com)
 - [ngrok](https://ngrok.com)
-

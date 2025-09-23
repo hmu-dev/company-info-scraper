@@ -1,0 +1,222 @@
+Metrics:
+  # API Performance
+  RequestDuration:
+    Unit: Seconds
+    Threshold: 10
+    Period: 300
+    EvaluationPeriods: 2
+    ComparisonOperator: GreaterThanThreshold
+    Description: API request duration
+
+  LLMLatency:
+    Unit: Seconds
+    Threshold: 5
+    Period: 300
+    EvaluationPeriods: 2
+    ComparisonOperator: GreaterThanThreshold
+    Description: LLM processing time
+
+  MediaProcessingTime:
+    Unit: Seconds
+    Threshold: 5
+    Period: 300
+    EvaluationPeriods: 2
+    ComparisonOperator: GreaterThanThreshold
+    Description: Media processing time
+
+  # Usage Metrics
+  PromptTokens:
+    Unit: Count
+    Threshold: 100000
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: Input token usage
+
+  CompletionTokens:
+    Unit: Count
+    Threshold: 50000
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: Output token usage
+
+  # Cost Metrics
+  cost_estimate_usd:
+    Unit: None
+    Threshold: 1.0
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: Hourly cost estimate
+
+  # Error Metrics
+  Errors:
+    Unit: Count
+    Threshold: 10
+    Period: 300
+    EvaluationPeriods: 2
+    ComparisonOperator: GreaterThanThreshold
+    Description: Error count
+
+  # Cache Metrics
+  CacheHits:
+    Unit: Count
+    Description: Cache hit count
+
+  CacheMisses:
+    Unit: Count
+    Description: Cache miss count
+
+  CacheLatency:
+    Unit: Milliseconds
+    Threshold: 100
+    Period: 300
+    EvaluationPeriods: 2
+    ComparisonOperator: GreaterThanThreshold
+    Description: Cache operation latency
+
+  # Media Metrics
+  ImageCount:
+    Unit: Count
+    Description: Number of images processed
+
+  VideoCount:
+    Unit: Count
+    Description: Number of videos processed
+
+  MediaSize:
+    Unit: Bytes
+    Threshold: 5000000000 # 5GB
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: Total media size
+
+Dashboards:
+  Main:
+    Widgets:
+      - Title: API Performance
+        Type: metric
+        Width: 12
+        Height: 6
+        Metrics:
+          - Name: RequestDuration
+            Stat: Average
+          - Name: LLMLatency
+            Stat: Average
+          - Name: MediaProcessingTime
+            Stat: Average
+        Period: 300
+
+      - Title: Token Usage
+        Type: metric
+        Width: 12
+        Height: 6
+        Metrics:
+          - Name: PromptTokens
+            Stat: Sum
+          - Name: CompletionTokens
+            Stat: Sum
+        Period: 3600
+
+      - Title: Bedrock Cost
+        Type: metric
+        Width: 12
+        Height: 6
+        Metrics:
+          - Name: cost_estimate_usd
+            Stat: Sum
+        Period: 3600
+
+      - Title: Error Count
+        Type: metric
+        Width: 12
+        Height: 6
+        Metrics:
+          - Name: Errors
+            Stat: Sum
+        Period: 300
+
+      - Title: Cache Performance
+        Type: metric
+        Width: 12
+        Height: 6
+        Metrics:
+          - Name: CacheHits
+            Stat: Sum
+          - Name: CacheMisses
+            Stat: Sum
+          - Name: CacheLatency
+            Stat: Average
+        Period: 300
+
+      - Title: Media Processing
+        Type: metric
+        Width: 12
+        Height: 6
+        Metrics:
+          - Name: ImageCount
+            Stat: Sum
+          - Name: VideoCount
+            Stat: Sum
+          - Name: MediaSize
+            Stat: Sum
+        Period: 3600
+
+Alarms:
+  HighErrorRate:
+    Metric: Errors
+    Threshold: 10
+    Period: 300
+    EvaluationPeriods: 2
+    ComparisonOperator: GreaterThanThreshold
+    Description: High error rate detected
+
+  HighLatency:
+    Metric: RequestDuration
+    Threshold: 10
+    Period: 300
+    EvaluationPeriods: 2
+    ComparisonOperator: GreaterThanThreshold
+    Description: High API latency detected
+
+  DailyCost:
+    Metric: cost_estimate_usd
+    Threshold: 10.0
+    Period: 86400
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: Daily cost threshold exceeded
+
+  BedrockCost:
+    Metric: cost_estimate_usd
+    Threshold: 1.0
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: Hourly Bedrock cost threshold exceeded
+
+  HighTokenUsage:
+    Metric: PromptTokens
+    Threshold: 100000
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: High token usage detected
+
+  LowCacheHitRate:
+    Metric: CacheHits
+    Threshold: 0.8
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: LessThanThreshold
+    Description: Low cache hit rate detected
+
+  HighMediaStorage:
+    Metric: MediaSize
+    Threshold: 5000000000 # 5GB
+    Period: 3600
+    EvaluationPeriods: 1
+    ComparisonOperator: GreaterThanThreshold
+    Description: High media storage usage detected

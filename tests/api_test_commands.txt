@@ -2,16 +2,32 @@
 # Test the API with curl
 
 # 1. Health check:
-curl -X GET http://localhost:8000/
+curl -X GET http://localhost:8000/health
 
-# 2. Scrape a website (replace URL as needed):
-curl -X POST http://localhost:8000/scrape \
+# 2. Scrape profile only:
+curl -X POST http://localhost:8000/scrape/profile \
   -H "Content-Type: application/json" \
   -d "{
     \"url\": \"https://www.openai.com\",
     \"model\": \"gpt-3.5-turbo\"
   }"
 
-# 3. View API documentation:
+# 3. Scrape media only:
+curl -X POST http://localhost:8000/scrape/media \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"url\": \"https://www.openai.com\",
+    \"model\": \"gpt-3.5-turbo\"
+  }"
+
+# 4. Scrape combined (profile + media):
+curl -X POST http://localhost:8000/scrape/combined \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"url\": \"https://www.openai.com\",
+    \"model\": \"gpt-3.5-turbo\"
+  }"
+
+# 5. View API documentation:
 # Open http://localhost:8000/docs in your browser
 

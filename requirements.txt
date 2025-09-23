@@ -7,3 +7,5 @@ beautifulsoup4
 fastapi
 uvicorn
 python-multipart
+cairosvg
+ffmpeg-python

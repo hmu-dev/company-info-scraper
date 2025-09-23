@@ -1,0 +1,119 @@
+Models:
+  Default:
+    Id: anthropic.claude-instant-v1
+    MaxTokens: 1000
+    Temperature: 0.7
+    StopSequences: ["\n\nHuman:"]
+    RetryConfig:
+      MaxAttempts: 3
+      InitialDelay: 1.0
+      MaxDelay: 10.0
+      ExponentialBase: 2.0
+      Jitter: true
+
+  Fallback:
+    Id: anthropic.claude-v2
+    MaxTokens: 1000
+    Temperature: 0.7
+    StopSequences: ["\n\nHuman:"]
+    RetryConfig:
+      MaxAttempts: 2
+      InitialDelay: 1.0
+      MaxDelay: 5.0
+      ExponentialBase: 2.0
+      Jitter: true
+
+Costs:
+  anthropic.claude-instant-v1:
+    InputTokens: 0.00163 # per 1K tokens
+    OutputTokens: 0.00551 # per 1K tokens
+  anthropic.claude-v2:
+    InputTokens: 0.01102 # per 1K tokens
+    OutputTokens: 0.03268 # per 1K tokens
+
+Prompts:
+  Default: |
+    You are an AI assistant tasked with extracting company information from websites.
+    Please analyze the content and provide structured information in JSON format.
+    Focus on key details about the company, including:
+    - About Us
+    - Our Culture
+    - Our Team
+    - Noteworthy & Differentiated
+    - Locations
+
+    Please ensure the output is valid JSON and includes all sections.
+    If information is not available, use "Not available" as the value.
+    For locations, use "No location found" if no location is specified.
+
+    Example response format:
+    {
+      "about_us": "Company description...",
+      "our_culture": "Culture description...",
+      "our_team": "Team description...",
+      "noteworthy_and_differentiated": "Unique features...",
+      "locations": "Company locations..."
+    }
+
+Validation:
+  RequiredFields:
+    - about_us
+    - our_culture
+    - our_team
+    - noteworthy_and_differentiated
+    - locations
+
+  MaxTokens:
+    Input: 4000
+    Output: 1000
+
+  ContentFilters:
+    - Profanity
+    - PII
+    - Sensitive
+
+Monitoring:
+  Metrics:
+    - PromptTokens
+    - CompletionTokens
+    - LLMLatency
+    - cost_estimate_usd
+
+  Thresholds:
+    TokensPerRequest: 5000
+    CostPerRequest: 0.10
+    LatencySeconds: 10
+
+ErrorHandling:
+  RetryableErrors:
+    - ThrottlingException
+    - ServiceUnavailable
+    - TooManyRequestsException
+    - InternalServerError
+
+  NonRetryableErrors:
+    - ValidationException
+    - AccessDeniedException
+    - ResourceNotFoundException
+
+Logging:
+  Events:
+    - request_start
+    - request_end
+    - request_error
+    - token_usage
+    - cost_estimate
+    - model_selection
+    - retry_attempt
+    - validation_error
+
+  Fields:
+    - timestamp
+    - request_id
+    - model_id
+    - prompt_tokens
+    - completion_tokens
+    - duration
+    - cost
+    - error_type
+    - error_message

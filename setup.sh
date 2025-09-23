@@ -45,3 +45,4 @@ echo "🌐 To run publicly: ./scripts/start_public_server.sh"
 echo "🧪 To test API: python tests/test_api_simple.py"
 echo ""
 echo "📖 See README.md for full documentation"
+
