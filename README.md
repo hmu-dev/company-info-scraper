@@ -187,25 +187,30 @@ This multi-stage approach ensures that the AI Web Scraper delivers comprehensive
 3. **Choose your installation type**
 
    **Option A: Full Service (UI + API)**
+
    ```bash
    pip install -r requirements.txt
    ```
 
    **Option B: API Only (Lightweight)**
+
    ```bash
    pip install -r requirements-api.txt
    ```
 
 4. **Configure API key**
-   
+
    **For Streamlit UI:**
+
    - Create `.streamlit/secrets.toml` file:
+
    ```toml
    [secrets]
    OPENAI_API_KEY = "your-openai-api-key-here"
    ```
-   
+
    **For API Only:**
+
    ```bash
    export OPENAI_API_KEY="your-openai-api-key-here"
    ```

@@ -7,7 +7,7 @@ A lightweight, production-ready FastAPI service for extracting company informati
 This service provides a clean, dependency-minimal API without the Streamlit UI components. Perfect for:
 
 - **Production deployments**
-- **Microservices architecture** 
+- **Microservices architecture**
 - **Mobile app backends**
 - **Third-party integrations**
 - **Serverless functions**
@@ -72,6 +72,7 @@ uvicorn api:app --host 0.0.0.0 --port 8000 --workers 4
 ## 📡 **API Endpoints**
 
 ### **Company Profile Extraction**
+
 ```bash
 POST /scrape/profile
 ```
@@ -79,6 +80,7 @@ POST /scrape/profile
 Extracts structured company information only (faster, mobile-optimized).
 
 ### **Media Assets Extraction**
+
 ```bash
 POST /scrape/media
 ```
@@ -86,6 +88,7 @@ POST /scrape/media
 Downloads and processes company media assets with metadata.
 
 ### **Combined Extraction**
+
 ```bash
 POST /scrape/combined
 ```
@@ -96,11 +99,11 @@ Extracts both profile and media in a single request.
 
 ### **Environment Variables**
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI API key for AI processing | Required |
-| `PORT` | API server port | `8000` |
-| `HOST` | API server host | `0.0.0.0` |
+| Variable         | Description                      | Default   |
+| ---------------- | -------------------------------- | --------- |
+| `OPENAI_API_KEY` | OpenAI API key for AI processing | Required  |
+| `PORT`           | API server port                  | `8000`    |
+| `HOST`           | API server host                  | `0.0.0.0` |
 
 ### **API Request Format**
 
