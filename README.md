@@ -17,6 +17,144 @@ A powerful AI-driven web scraping tool that extracts comprehensive company profi
 - **🔐 Secure Configuration**: API keys managed through Streamlit secrets
 - **🌐 Public Hosting**: Easy deployment with multiple hosting options
 
+## 🔬 How It Works
+
+The AI Web Scraper uses a sophisticated multi-stage approach to extract comprehensive company information from websites:
+
+### 🎯 **Stage 1: Smart Page Discovery**
+
+The service intelligently navigates websites to find the most relevant "About Us" content:
+
+1. **URL Analysis**: Examines the provided URL to determine if it already contains about content
+2. **Navigation Scanning**: Searches through website navigation menus for about-related links
+3. **Common Path Detection**: Checks standard about page paths like `/about`, `/about-us`, `/company`, `/our-story`
+4. **Content Validation**: Verifies pages contain relevant keywords like "about us", "our team", "founded", etc.
+
+**Example Navigation Logic:**
+```python
+# Searches for links containing about keywords
+about_keywords = ['about', 'about-us', 'company', 'our-story', 'our-team']
+# Checks common paths like /about, /about-us, /company
+# Validates content relevance before proceeding
+```
+
+### 🧠 **Stage 2: AI-Powered Content Extraction**
+
+Once the optimal page is found, the service uses OpenAI's GPT models to intelligently extract structured information:
+
+1. **Content Analysis**: The AI analyzes the entire page content, understanding context and relationships
+2. **Structured Extraction**: Uses a specialized prompt to extract information into four key categories:
+   - **About Us**: Company overview, mission, locations, founding story
+   - **Our Culture**: Values, working environment, company philosophy
+   - **Our Team**: Key individuals, leadership, team structure
+   - **Noteworthy & Differentiated**: Unique selling points, awards, special features
+
+3. **Context Understanding**: The AI can distinguish between:
+   - Main company information vs. product details
+   - Current information vs. historical content
+   - Primary content vs. navigation/footer text
+
+**AI Prompt Strategy:**
+```python
+# The AI is instructed to:
+# - Extract ONLY relevant company information
+# - Organize content into the four sections
+# - Use "Not available" for missing sections
+# - Focus on company identity and culture
+# - Ignore product catalogs and sales content
+```
+
+### 🖼️ **Stage 3: Intelligent Media Discovery**
+
+The service employs a dual approach to find relevant media assets:
+
+#### **A. HTML-Based Media Extraction**
+```python
+# Searches for images with relevant context
+img_tags = soup.find_all('img')
+for img in img_tags:
+    alt_text = img.get('alt', '').lower()
+    src = img.get('src', '').lower()
+    
+    # Prioritizes company/branding images
+    if any(keyword in alt_text for keyword in 
+           ['logo', 'brand', 'company', 'team', 'about']):
+        # High priority: Company branding
+    elif not any(ui_element in src for ui_element in 
+                 ['icon', 'button', 'arrow', 'cart']):
+        # Medium priority: Content images
+```
+
+#### **B. AI-Enhanced Media Discovery**
+The AI analyzes the extracted content to identify mentioned media:
+- Logos and branding materials
+- Team photos and founder images
+- Office and workplace images
+- Product and service visuals
+
+#### **C. Smart Media Prioritization**
+Each discovered media item receives a priority score:
+
+```python
+# Priority scoring system
+if 'logo' in context or 'brand' in context:
+    priority = 100  # Highest priority
+elif 'team' in context or 'founder' in context:
+    priority = 80   # High priority
+elif 'office' in context or 'location' in context:
+    priority = 60   # Medium priority
+else:
+    priority = 10   # Default priority
+```
+
+### 🔍 **Stage 4: Content Filtering & Quality Control**
+
+The service applies intelligent filtering to ensure high-quality results:
+
+1. **Relevance Filtering**: Removes navigation elements, ads, and unrelated content
+2. **Duplicate Detection**: Identifies and removes duplicate media items
+3. **Size Optimization**: Only processes media files under 5MB for base64 encoding
+4. **Format Validation**: Ensures media files are in supported formats
+5. **Context Preservation**: Maintains the relationship between text and media
+
+### 📊 **Stage 5: Structured Output Generation**
+
+Finally, the service organizes all extracted information into a clean, structured format:
+
+```json
+{
+  "profile": {
+    "about_us": "Company overview with locations...",
+    "our_culture": "Values and working environment...",
+    "our_team": "Key individuals and leadership...",
+    "noteworthy_and_differentiated": "Unique selling points..."
+  },
+  "media": [
+    {
+      "url": "https://company.com/logo.png",
+      "type": "image",
+      "context": "Company logo",
+      "priority": 100,
+      "metadata": {
+        "width": 200,
+        "height": 200,
+        "size_bytes": 15420
+      }
+    }
+  ]
+}
+```
+
+### 🎯 **Key Intelligence Features**
+
+- **Context Awareness**: Understands the difference between company information and product details
+- **Location Extraction**: Automatically identifies and extracts company locations from text
+- **Media Relevance**: Prioritizes logos, team photos, and company branding over generic images
+- **Error Recovery**: Falls back to alternative pages if the primary about page fails
+- **Content Validation**: Ensures extracted information is actually about the company, not products or services
+
+This multi-stage approach ensures that the AI Web Scraper delivers comprehensive, accurate, and well-organized company profiles suitable for recruiting platforms, market research, and business intelligence applications.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
