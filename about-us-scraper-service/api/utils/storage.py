@@ -12,7 +12,9 @@ Classes:
 
 class StorageError(Exception):
     """Custom exception for storage operations."""
+
     pass
+
 
 import io
 import time
@@ -41,10 +43,7 @@ class MediaStorage:
     """
 
     def __init__(
-        self,
-        bucket_name: str,
-        cloudfront_domain: str,
-        region: str = "us-west-2"
+        self, bucket_name: str, cloudfront_domain: str, region: str = "us-west-2"
     ) -> None:
         """
         Initialize storage utility.
@@ -60,10 +59,7 @@ class MediaStorage:
         self.s3 = boto3.client("s3", region_name=region)
 
     def upload(
-        self,
-        key: str,
-        data: Union[bytes, io.BytesIO],
-        content_type: str
+        self, key: str, data: Union[bytes, io.BytesIO], content_type: str
     ) -> str:
         """
         Upload file to S3.
@@ -81,10 +77,7 @@ class MediaStorage:
         """
         try:
             self.s3.put_object(
-                Bucket=self.bucket_name,
-                Key=key,
-                Body=data,
-                ContentType=content_type
+                Bucket=self.bucket_name, Key=key, Body=data, ContentType=content_type
             )
             return self.get_url(key)
         except ClientError as e:
@@ -104,10 +97,7 @@ class MediaStorage:
             Exception: If download fails
         """
         try:
-            response = self.s3.get_object(
-                Bucket=self.bucket_name,
-                Key=key
-            )
+            response = self.s3.get_object(Bucket=self.bucket_name, Key=key)
             return response["Body"].read()
         except ClientError as e:
             raise Exception(f"Failed to download file: {str(e)}")
@@ -120,10 +110,7 @@ class MediaStorage:
             key: S3 object key
         """
         try:
-            self.s3.delete_object(
-                Bucket=self.bucket_name,
-                Key=key
-            )
+            self.s3.delete_object(Bucket=self.bucket_name, Key=key)
         except ClientError:
             # Ignore errors on delete
             pass
@@ -148,22 +135,16 @@ class MediaStorage:
 
             with open(key_path, "rb") as key_file:
                 private_key = serialization.load_pem_private_key(
-                    key_file.read(),
-                    password=None
+                    key_file.read(), password=None
                 )
 
-            signer = CloudFrontSigner(key_id, lambda x: private_key.sign(
-                x,
-                padding.PKCS1v15(),
-                hashes.SHA1()
-            ))
+            signer = CloudFrontSigner(
+                key_id, lambda x: private_key.sign(x, padding.PKCS1v15(), hashes.SHA1())
+            )
 
             # Generate signed URL
             expiry_date = datetime.fromtimestamp(time.time() + expiry)
-            url = signer.generate_presigned_url(
-                url,
-                date_less_than=expiry_date
-            )
+            url = signer.generate_presigned_url(url, date_less_than=expiry_date)
 
         return url
 

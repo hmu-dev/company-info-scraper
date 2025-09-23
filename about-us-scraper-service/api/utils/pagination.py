@@ -19,10 +19,11 @@ from ..models import PaginationMeta
 
 class PaginationError(Exception):
     """Error raised by pagination operations."""
+
     pass
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def encode_cursor(data: dict) -> str:
@@ -48,11 +49,9 @@ class PaginationResult(Generic[T]):
         has_more: Whether more items exist
         next_cursor: Token for next page
     """
+
     def __init__(
-        self,
-        items: List[T],
-        has_more: bool,
-        next_cursor: Optional[str] = None
+        self, items: List[T], has_more: bool, next_cursor: Optional[str] = None
     ) -> None:
         """
         Initialize pagination result.
@@ -71,16 +70,13 @@ class PaginationResult(Generic[T]):
         return {
             "items": self.items,
             "pagination": PaginationMeta(
-                next_cursor=self.next_cursor,
-                has_more=self.has_more
-            ).dict()
+                next_cursor=self.next_cursor, has_more=self.has_more
+            ).dict(),
         }
 
 
 def paginate_items(
-    items: List[T],
-    limit: int = 10,
-    cursor: Optional[str] = None
+    items: List[T], limit: int = 10, cursor: Optional[str] = None
 ) -> PaginationResult[T]:
     """
     Paginate a list of items.
@@ -126,11 +122,9 @@ class PaginationResult(Generic[T]):
         has_more: Whether more items exist
         next_cursor: Token for next page
     """
+
     def __init__(
-        self,
-        items: List[T],
-        has_more: bool,
-        next_cursor: Optional[str] = None
+        self, items: List[T], has_more: bool, next_cursor: Optional[str] = None
     ) -> None:
         """
         Initialize pagination result.
@@ -149,16 +143,13 @@ class PaginationResult(Generic[T]):
         return {
             "items": self.items,
             "pagination": PaginationMeta(
-                next_cursor=self.next_cursor,
-                has_more=self.has_more
-            ).dict()
+                next_cursor=self.next_cursor, has_more=self.has_more
+            ).dict(),
         }
 
 
 def paginate_items(
-    items: List[T],
-    limit: int = 10,
-    cursor: Optional[str] = None
+    items: List[T], limit: int = 10, cursor: Optional[str] = None
 ) -> PaginationResult[T]:
     """
     Paginate a list of items.
@@ -205,6 +196,7 @@ class Paginator(Generic[T]):
     Attributes:
         items_per_page: Number of items per page
     """
+
     def __init__(self, items_per_page: int = 10) -> None:
         """
         Initialize paginator.
@@ -215,9 +207,7 @@ class Paginator(Generic[T]):
         self.items_per_page = items_per_page
 
     def paginate(
-        self,
-        items: List[T],
-        cursor: Optional[str] = None
+        self, items: List[T], cursor: Optional[str] = None
     ) -> PaginationResult[T]:
         """
         Paginate items.
@@ -257,7 +247,5 @@ class Paginator(Generic[T]):
             next_cursor = encode_cursor({"offset": end})
 
         return PaginationResult(
-            items=page_items,
-            has_more=has_more,
-            next_cursor=next_cursor
+            items=page_items, has_more=has_more, next_cursor=next_cursor
         )

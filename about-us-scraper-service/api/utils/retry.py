@@ -20,20 +20,23 @@ from typing import Any, Callable, Optional, Type, TypeVar, Union
 
 class RetryableError(Exception):
     """Base class for retryable errors."""
+
     pass
 
 
 class LLMError(RetryableError):
     """Error raised by LLM operations."""
+
     pass
 
 
 class MediaProcessingError(RetryableError):
     """Error raised during media processing."""
+
     pass
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def retryable(
@@ -42,7 +45,7 @@ def retryable(
     max_delay: float = 10.0,
     exponential_base: float = 2.0,
     jitter: bool = True,
-    retryable_exceptions: Optional[tuple[Type[Exception], ...]] = None
+    retryable_exceptions: Optional[tuple[Type[Exception], ...]] = None,
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """
     Decorator for retrying functions with exponential backoff.
@@ -86,14 +89,11 @@ def retryable(
                         raise
 
                     # Calculate delay with exponential backoff
-                    delay = min(
-                        initial_delay * (exponential_base ** attempt),
-                        max_delay
-                    )
+                    delay = min(initial_delay * (exponential_base**attempt), max_delay)
 
                     # Add jitter if enabled
                     if jitter:
-                        delay *= (0.5 + random.random())
+                        delay *= 0.5 + random.random()
 
                     # Wait before retrying
                     await asyncio.sleep(delay)

@@ -14,6 +14,7 @@ import semver
 
 class VersionError(Exception):
     """Base exception for version-related errors."""
+
     pass
 
 
@@ -63,6 +64,7 @@ class APIVersion:
 
 class VersionHeader:
     """Constants for version-related headers."""
+
     CURRENT = "X-API-Version"
     LATEST = "X-API-Latest-Version"
     DEPRECATION = "Warning"
@@ -97,12 +99,7 @@ class VersionManager:
         handlers: Version-specific handlers
     """
 
-    def __init__(
-        self,
-        current_version: str,
-        min_version: str,
-        max_version: str
-    ):
+    def __init__(self, current_version: str, min_version: str, max_version: str):
         """
         Initialize version manager.
 
@@ -121,7 +118,7 @@ class VersionManager:
         version: str,
         path: str,
         handler: Callable,
-        deprecation_notice: Optional[str] = None
+        deprecation_notice: Optional[str] = None,
     ) -> None:
         """
         Register a version-specific handler.
@@ -136,14 +133,10 @@ class VersionManager:
             self.handlers[version] = {}
         self.handlers[version][path] = {
             "handler": handler,
-            "deprecation_notice": deprecation_notice
+            "deprecation_notice": deprecation_notice,
         }
 
-    def get_handler(
-        self,
-        version: Optional[str],
-        path: str
-    ) -> Optional[Dict]:
+    def get_handler(self, version: Optional[str], path: str) -> Optional[Dict]:
         """
         Get handler for specified version and path.
 
@@ -168,6 +161,7 @@ class VersionManager:
         Returns:
             Middleware function
         """
+
         async def middleware(request: Request, call_next: Callable) -> Response:
             """
             Middleware for handling API versions.
@@ -193,12 +187,20 @@ class VersionManager:
                 if version_obj < parse_version("1.0.0"):
                     raise VersionError(f"Version {version} is not supported")
                 if version_obj < self.min_version:
-                    raise VersionError(f"Version {version} is no longer supported. Minimum supported version is {self.min_version}")
+                    raise VersionError(
+                        f"Version {version} is no longer supported. Minimum supported version is {self.min_version}"
+                    )
                 if version_obj > self.max_version:
-                    raise VersionError(f"Version {version} is not yet supported. Maximum supported version is {self.max_version}")
+                    raise VersionError(
+                        f"Version {version} is not yet supported. Maximum supported version is {self.max_version}"
+                    )
 
             # Get handler
-            path = request.url.path.replace(f"/v{version}", "") if version else request.url.path
+            path = (
+                request.url.path.replace(f"/v{version}", "")
+                if version
+                else request.url.path
+            )
             handler_info = self.get_handler(version, path)
 
             # Process request
@@ -210,7 +212,9 @@ class VersionManager:
 
             # Add deprecation notice if applicable
             if handler_info and handler_info.get("deprecation_notice"):
-                response.headers[VersionHeader.DEPRECATION] = handler_info["deprecation_notice"]
+                response.headers[VersionHeader.DEPRECATION] = handler_info[
+                    "deprecation_notice"
+                ]
 
             return response
 
@@ -218,10 +222,7 @@ class VersionManager:
 
 
 def setup_versioning(
-    app: FastAPI,
-    current_version: str,
-    min_version: str,
-    max_version: str
+    app: FastAPI, current_version: str, min_version: str, max_version: str
 ) -> VersionManager:
     """
     Set up API versioning for FastAPI app.

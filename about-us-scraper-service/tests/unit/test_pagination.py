@@ -16,14 +16,14 @@ from api.utils.pagination import (
     PaginationError,
     PaginationResult,
     decode_cursor,
-    encode_cursor
+    encode_cursor,
 )
 
 
 def test_encode_cursor():
     """Test cursor encoding."""
     # Given
-    cursor_data = {'key': 'value', 'number': 42}
+    cursor_data = {"key": "value", "number": 42}
 
     # When
     cursor = encode_cursor(cursor_data)
@@ -37,7 +37,7 @@ def test_encode_cursor():
 def test_decode_cursor():
     """Test cursor decoding."""
     # Given
-    cursor_data = {'key': 'value', 'number': 42}
+    cursor_data = {"key": "value", "number": 42}
     cursor = base64.b64encode(json.dumps(cursor_data).encode()).decode()
 
     # When
@@ -50,7 +50,7 @@ def test_decode_cursor():
 def test_decode_cursor_invalid():
     """Test invalid cursor decoding."""
     # Given
-    cursor = 'invalid-cursor'
+    cursor = "invalid-cursor"
 
     # When/Then
     with pytest.raises(PaginationError):
@@ -129,14 +129,14 @@ class TestPaginator:
 
         # When/Then
         with pytest.raises(PaginationError):
-            paginator.paginate(items, 'invalid-cursor')
+            paginator.paginate(items, "invalid-cursor")
 
     def test_paginate_cursor_out_of_range(self):
         """Test pagination with cursor beyond list bounds."""
         # Given
         items = list(range(10))
         paginator = Paginator[int](items_per_page=3)
-        cursor = encode_cursor({'offset': 20})
+        cursor = encode_cursor({"offset": 20})
 
         # When
         result = paginator.paginate(items, cursor)

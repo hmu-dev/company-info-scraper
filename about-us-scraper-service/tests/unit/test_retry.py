@@ -14,6 +14,7 @@ from api.utils.retry import retryable, RetryableError, LLMError
 
 class TestError(RetryableError):
     """Test error class."""
+
     pass
 
 
@@ -46,7 +47,7 @@ async def test_retryable_retry_success():
         initial_delay=0.1,
         max_delay=1.0,
         exponential_base=2.0,
-        jitter=False
+        jitter=False,
     )
     async def test_func():
         return mock_func()
@@ -114,12 +115,13 @@ async def test_retryable_exponential_backoff():
     """Test exponential backoff delays."""
     # Given
     mock_func = Mock(side_effect=[TestError(), TestError(), 42])
+
     @retryable(
         max_attempts=3,
         initial_delay=0.1,
         max_delay=0.3,
         exponential_base=2.0,
-        jitter=False
+        jitter=False,
     )
     async def test_func():
         return mock_func()
@@ -127,7 +129,7 @@ async def test_retryable_exponential_backoff():
     # When
     mock_sleep = AsyncMock()
 
-    with patch('asyncio.sleep', mock_sleep):
+    with patch("asyncio.sleep", mock_sleep):
         result = await test_func()
 
     # Then
@@ -143,12 +145,13 @@ async def test_retryable_max_delay():
     """Test maximum delay cap."""
     # Given
     mock_func = Mock(side_effect=[TestError(), TestError(), 42])
+
     @retryable(
         max_attempts=3,
         initial_delay=0.1,
         max_delay=0.2,
         exponential_base=2.0,
-        jitter=False
+        jitter=False,
     )
     async def test_func():
         return mock_func()
@@ -156,7 +159,7 @@ async def test_retryable_max_delay():
     # When
     mock_sleep = AsyncMock()
 
-    with patch('asyncio.sleep', mock_sleep):
+    with patch("asyncio.sleep", mock_sleep):
         result = await test_func()
 
     # Then

@@ -33,10 +33,7 @@ class Cache:
     """
 
     def __init__(
-        self,
-        table_name: str,
-        region: str = "us-west-2",
-        ttl_seconds: int = 3600
+        self, table_name: str, region: str = "us-west-2", ttl_seconds: int = 3600
     ) -> None:
         """
         Initialize cache.
@@ -65,16 +62,13 @@ class Cache:
         try:
             # Get item from DynamoDB
             response = self.dynamodb.get_item(
-                TableName=self.table_name,
-                Key={"key": {"S": key}}
+                TableName=self.table_name, Key={"key": {"S": key}}
             )
 
             # Check if item exists
             if "Item" not in response:
                 log_cache_metrics(
-                    operation="get",
-                    hit=False,
-                    latency=time.time() - start_time
+                    operation="get", hit=False, latency=time.time() - start_time
                 )
                 return None
 
@@ -86,26 +80,20 @@ class Cache:
             # Check if expired
             if ttl < time.time():
                 log_cache_metrics(
-                    operation="get",
-                    hit=False,
-                    latency=time.time() - start_time
+                    operation="get", hit=False, latency=time.time() - start_time
                 )
                 return None
 
             # Return value
             log_cache_metrics(
-                operation="get",
-                hit=True,
-                latency=time.time() - start_time
+                operation="get", hit=True, latency=time.time() - start_time
             )
             return value
 
         except ClientError:
             # Log error and return None
             log_cache_metrics(
-                operation="get",
-                hit=False,
-                latency=time.time() - start_time
+                operation="get", hit=False, latency=time.time() - start_time
             )
             return None
 
@@ -128,23 +116,19 @@ class Cache:
                 Item={
                     "key": {"S": key},
                     "value": {"S": json.dumps(value)},
-                    "ttl": {"N": str(ttl)}
-                }
+                    "ttl": {"N": str(ttl)},
+                },
             )
 
             # Log success
             log_cache_metrics(
-                operation="set",
-                hit=True,
-                latency=time.time() - start_time
+                operation="set", hit=True, latency=time.time() - start_time
             )
 
         except ClientError:
             # Log error
             log_cache_metrics(
-                operation="set",
-                hit=False,
-                latency=time.time() - start_time
+                operation="set", hit=False, latency=time.time() - start_time
             )
 
     def delete(self, key: str) -> None:
@@ -158,21 +142,16 @@ class Cache:
         try:
             # Delete item from DynamoDB
             self.dynamodb.delete_item(
-                TableName=self.table_name,
-                Key={"key": {"S": key}}
+                TableName=self.table_name, Key={"key": {"S": key}}
             )
 
             # Log success
             log_cache_metrics(
-                operation="delete",
-                hit=True,
-                latency=time.time() - start_time
+                operation="delete", hit=True, latency=time.time() - start_time
             )
 
         except ClientError:
             # Log error
             log_cache_metrics(
-                operation="delete",
-                hit=False,
-                latency=time.time() - start_time
+                operation="delete", hit=False, latency=time.time() - start_time
             )

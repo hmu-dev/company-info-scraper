@@ -57,65 +57,42 @@ def test_publish_metrics_success():
     """Test successful metric publishing."""
     # Given
     namespace = "TestNamespace"
-    metrics = {
-        "TestMetric1": (1.0, "Count"),
-        "TestMetric2": (2.5, "Seconds")
-    }
+    metrics = {"TestMetric1": (1.0, "Count"), "TestMetric2": (2.5, "Seconds")}
 
     # Mock CloudWatch client
     mock_client = Mock()
     mock_client.put_metric_data.return_value = {}
 
     # When
-    with patch('boto3.client', return_value=mock_client):
-        publish_metrics([
-            {
-                'name': 'TestMetric1',
-                'value': 1.0,
-                'unit': 'Count'
-            },
-            {
-                'name': 'TestMetric2',
-                'value': 2.5,
-                'unit': 'Seconds'
-            }
-        ])
+    with patch("boto3.client", return_value=mock_client):
+        publish_metrics(
+            [
+                {"name": "TestMetric1", "value": 1.0, "unit": "Count"},
+                {"name": "TestMetric2", "value": 2.5, "unit": "Seconds"},
+            ]
+        )
 
     # Then
     mock_client.put_metric_data.assert_called_once_with(
-        Namespace='AboutUsScraper',
+        Namespace="AboutUsScraper",
         MetricData=[
-            {
-                'MetricName': 'TestMetric1',
-                'Value': 1.0,
-                'Unit': 'Count'
-            },
-            {
-                'MetricName': 'TestMetric2',
-                'Value': 2.5,
-                'Unit': 'Seconds'
-            }
-        ]
+            {"MetricName": "TestMetric1", "Value": 1.0, "Unit": "Count"},
+            {"MetricName": "TestMetric2", "Value": 2.5, "Unit": "Seconds"},
+        ],
     )
 
 
 def test_publish_metrics_error(capsys):
     """Test metric publishing error handling."""
     # Given
-    metrics = [
-        {
-            "name": "TestMetric",
-            "value": 1.0,
-            "unit": "Count"
-        }
-    ]
+    metrics = [{"name": "TestMetric", "value": 1.0, "unit": "Count"}]
 
     # Mock CloudWatch client to raise error
     mock_client = Mock()
     mock_client.put_metric_data.side_effect = Exception("Test error")
 
     # When
-    with patch('boto3.client', return_value=mock_client):
+    with patch("boto3.client", return_value=mock_client):
         publish_metrics(metrics)
 
     # Then
@@ -136,13 +113,12 @@ def test_publish_metrics_empty():
     mock_client.put_metric_data.return_value = {}
 
     # When
-    with patch('boto3.client', return_value=mock_client):
+    with patch("boto3.client", return_value=mock_client):
         publish_metrics([])
 
     # Then
     mock_client.put_metric_data.assert_called_once_with(
-        Namespace='AboutUsScraper',
-        MetricData=[]
+        Namespace="AboutUsScraper", MetricData=[]
     )
 
 
@@ -150,32 +126,20 @@ def test_publish_metrics_invalid_unit():
     """Test publishing metrics with invalid unit."""
     # Given
     namespace = "TestNamespace"
-    metrics = {
-        "TestMetric": (1.0, "InvalidUnit")
-    }
+    metrics = {"TestMetric": (1.0, "InvalidUnit")}
 
     # Mock CloudWatch client
     mock_client = Mock()
     mock_client.put_metric_data.side_effect = Exception("Invalid metric unit")
 
     # When
-    with patch('boto3.client', return_value=mock_client):
-        publish_metrics([
-            {
-                'name': 'TestMetric',
-                'value': 1.0,
-                'unit': 'InvalidUnit'
-            }
-        ])  # Should not raise
+    with patch("boto3.client", return_value=mock_client):
+        publish_metrics(
+            [{"name": "TestMetric", "value": 1.0, "unit": "InvalidUnit"}]
+        )  # Should not raise
 
     # Then
     mock_client.put_metric_data.assert_called_once_with(
-        Namespace='AboutUsScraper',
-        MetricData=[
-            {
-                'MetricName': 'TestMetric',
-                'Value': 1.0,
-                'Unit': 'InvalidUnit'
-            }
-        ]
+        Namespace="AboutUsScraper",
+        MetricData=[{"MetricName": "TestMetric", "Value": 1.0, "Unit": "InvalidUnit"}],
     )

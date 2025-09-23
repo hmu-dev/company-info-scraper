@@ -37,8 +37,14 @@ def media_service(mock_storage, mock_cache):
         cache=mock_cache,
         max_file_size=10 * 1024 * 1024,  # 10MB
         max_video_duration=300,  # 5 minutes
-        supported_image_types=["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"],
-        supported_video_types=["video/mp4", "video/webm"]
+        supported_image_types=[
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp",
+            "image/svg+xml",
+        ],
+        supported_video_types=["video/mp4", "video/webm"],
     )
 
 
@@ -46,10 +52,7 @@ def media_service(mock_storage, mock_cache):
 def mock_image_response():
     response = Mock()
     response.content = b"test image data"
-    response.headers = {
-        "content-type": "image/jpeg",
-        "content-length": "1024"
-    }
+    response.headers = {"content-type": "image/jpeg", "content-length": "1024"}
     return response
 
 
@@ -57,10 +60,7 @@ def mock_image_response():
 def mock_video_response():
     response = Mock()
     response.content = b"test video data"
-    response.headers = {
-        "content-type": "video/mp4",
-        "content-length": "1024"
-    }
+    response.headers = {"content-type": "video/mp4", "content-length": "1024"}
     return response
 
 
@@ -68,17 +68,9 @@ def mock_video_response():
 def mock_ffprobe_result():
     return {
         "streams": [
-            {
-                "codec_type": "video",
-                "width": 1920,
-                "height": 1080,
-                "duration": "120.5"
-            }
+            {"codec_type": "video", "width": 1920, "height": 1080, "duration": "120.5"}
         ],
-        "format": {
-            "duration": "120.5",
-            "size": "1024"
-        }
+        "format": {"duration": "120.5", "size": "1024"},
     }
 
 
@@ -91,13 +83,14 @@ async def test_download_image_success(mock_get, media_service, mock_image_respon
     # Create a small test image
     from PIL import Image
     from io import BytesIO
-    img = Image.new('RGB', (100, 100), color='red')
+
+    img = Image.new("RGB", (100, 100), color="red")
     img_bytes = BytesIO()
-    img.save(img_bytes, format='JPEG')
+    img.save(img_bytes, format="JPEG")
     mock_image_response.content = img_bytes.getvalue()
     mock_image_response.headers = {
         "content-type": "image/jpeg",
-        "content-length": "1024"
+        "content-length": "1024",
     }
     url = "https://example.com/image.jpg"
 
@@ -132,7 +125,7 @@ async def test_download_video_success(
     mock_video_response.content = b"test video data"
     mock_video_response.headers = {
         "content-type": "video/mp4",
-        "content-length": str(len(mock_video_response.content))
+        "content-length": str(len(mock_video_response.content)),
     }
     url = "https://example.com/video.mp4"
     with patch("ffmpeg.probe") as mock_ffprobe:
@@ -177,7 +170,7 @@ async def test_download_media_too_large(mock_get, media_service):
     response.status_code = 200
     response.headers = {
         "content-type": "image/jpeg",
-        "content-length": str(20 * 1024 * 1024)  # 20MB
+        "content-length": str(20 * 1024 * 1024),  # 20MB
     }
     mock_get.return_value = response
     url = "https://example.com/large.jpg"
@@ -199,7 +192,7 @@ async def test_download_video_too_long(
     mock_video_response.content = b"test video data"
     mock_video_response.headers = {
         "content-type": "video/mp4",
-        "content-length": str(len(mock_video_response.content))
+        "content-length": str(len(mock_video_response.content)),
     }
     url = "https://example.com/long.mp4"
     mock_ffprobe_result["format"]["duration"] = "600"  # 10 minutes
@@ -265,8 +258,8 @@ async def test_cache_hit(media_service, mock_cache):
             "size_bytes": 1024,
             "format": "jpeg",
             "priority": 80,
-            "duration_seconds": None
-        }
+            "duration_seconds": None,
+        },
     }
     mock_cache.get.return_value = json.dumps(cached_data)
 
@@ -309,8 +302,8 @@ async def test_update_cache(media_service, mock_cache):
             size_bytes=1024,
             format="jpeg",
             priority=80,
-            duration_seconds=None
-        )
+            duration_seconds=None,
+        ),
     )
 
     # Execute
@@ -319,10 +312,12 @@ async def test_update_cache(media_service, mock_cache):
     # Assert
     mock_cache.set.assert_called_once_with(
         url,
-        json.dumps({
-        "type": media_asset.type,
-        "url": str(media_asset.url),
-        "metadata": media_asset.metadata.model_dump()
-    }),
-        ttl_seconds=3600
+        json.dumps(
+            {
+                "type": media_asset.type,
+                "url": str(media_asset.url),
+                "metadata": media_asset.metadata.model_dump(),
+            }
+        ),
+        ttl_seconds=3600,
     )

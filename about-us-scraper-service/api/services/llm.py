@@ -43,7 +43,7 @@ class LLMService:
         region: str = "us-west-2",
         model_id: str = "anthropic.claude-instant-v1",
         max_tokens: int = 1000,
-        temperature: float = 0.7
+        temperature: float = 0.7,
     ) -> None:
         """
         Initialize LLM service.
@@ -60,13 +60,11 @@ class LLMService:
 
         # Initialize Bedrock client with retries and timeouts
         self.bedrock = boto3.client(
-            service_name='bedrock-runtime',
+            service_name="bedrock-runtime",
             region_name=region,
             config=Config(
-                retries={'max_attempts': 3},
-                connect_timeout=5,
-                read_timeout=30
-            )
+                retries={"max_attempts": 3}, connect_timeout=5, read_timeout=30
+            ),
         )
 
     def _format_prompt(self, system: str, user: str) -> str:
@@ -107,7 +105,7 @@ class LLMService:
         """
         try:
             # Extract completion
-            completion = response['completion']
+            completion = response["completion"]
 
             # Parse JSON from completion
             try:
@@ -140,13 +138,10 @@ class LLMService:
         initial_delay=0.1,
         max_delay=0.3,
         exponential_base=2.0,
-        jitter=False
+        jitter=False,
     )
     async def extract_content(
-        self,
-        text: str,
-        prompt: str,
-        temperature: Optional[float] = None
+        self, text: str, prompt: str, temperature: Optional[float] = None
     ) -> Dict[str, Any]:
         """
         Extract content using Bedrock.
@@ -177,53 +172,56 @@ class LLMService:
                 "prompt": formatted_prompt,
                 "max_tokens_to_sample": self.max_tokens,
                 "temperature": temperature or self.temperature,
-                "stop_sequences": ["\n\nHuman:"]
+                "stop_sequences": ["\n\nHuman:"],
             }
 
             # Call Bedrock
             response = self.bedrock.invoke_model(
-                modelId=self.model_id,
-                body=json.dumps(request_body)
+                modelId=self.model_id, body=json.dumps(request_body)
             )
 
             # Parse response
-            response_body = json.loads(response['body'].read())
+            response_body = json.loads(response["body"].read())
             result = self._parse_response(response_body)
 
             # Calculate token usage (approximate)
             prompt_tokens = self._estimate_tokens(formatted_prompt)
-            completion_tokens = self._estimate_tokens(
-                response_body['completion']
-            )
+            completion_tokens = self._estimate_tokens(response_body["completion"])
 
             # Calculate cost estimate
             # Claude-Instant pricing:
             # Input: $0.00163 per 1K tokens
             # Output: $0.00551 per 1K tokens
             cost_estimate = (
-                prompt_tokens * 0.00163 / 1000 +  # Input cost
-                completion_tokens * 0.00551 / 1000  # Output cost
+                prompt_tokens * 0.00163 / 1000  # Input cost
+                + completion_tokens * 0.00551 / 1000  # Output cost
             )
 
             # Log success with metrics
             duration = time.time() - start_time
-            log_event("llm_success", {
-                "model": self.model_id,
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "duration": duration,
-                "cost_estimate_usd": cost_estimate
-            })
+            log_event(
+                "llm_success",
+                {
+                    "model": self.model_id,
+                    "prompt_tokens": prompt_tokens,
+                    "completion_tokens": completion_tokens,
+                    "duration": duration,
+                    "cost_estimate_usd": cost_estimate,
+                },
+            )
 
             return result
 
         except Exception as e:
             # Log error with details
-            log_event("llm_error", {
-                "model": self.model_id,
-                "error": str(e),
-                "error_type": type(e).__name__
-            })
+            log_event(
+                "llm_error",
+                {
+                    "model": self.model_id,
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                },
+            )
 
             # Convert to LLMError for consistent error handling
             if isinstance(e, LLMError):

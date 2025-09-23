@@ -31,21 +31,12 @@ class CompanyProfile(BaseModel):
         noteworthy_and_differentiated (str): Unique company features
         locations (str): Company location information
     """
-    about_us: str = Field(
-        description="General company description and history"
-    )
-    our_culture: str = Field(
-        description="Company culture and values"
-    )
-    our_team: str = Field(
-        description="Team information and leadership"
-    )
-    noteworthy_and_differentiated: str = Field(
-        description="Unique company features"
-    )
-    locations: str = Field(
-        description="Company location information"
-    )
+
+    about_us: str = Field(description="General company description and history")
+    our_culture: str = Field(description="Company culture and values")
+    our_team: str = Field(description="Team information and leadership")
+    noteworthy_and_differentiated: str = Field(description="Unique company features")
+    locations: str = Field(description="Company location information")
 
 
 class MediaMetadata(BaseModel):
@@ -60,27 +51,14 @@ class MediaMetadata(BaseModel):
         priority (float): Relevance score (0-1)
         duration_seconds (Optional[float]): Video duration in seconds
     """
-    width: Optional[int] = Field(
-        description="Image/video width in pixels"
-    )
-    height: Optional[int] = Field(
-        description="Image/video height in pixels"
-    )
-    size_bytes: int = Field(
-        description="File size in bytes",
-        gt=0
-    )
-    format: str = Field(
-        description="File format (e.g., jpeg, png, mp4)"
-    )
-    priority: int = Field(
-        description="Relevance score (0-100)",
-        ge=0,
-        le=100
-    )
+
+    width: Optional[int] = Field(description="Image/video width in pixels")
+    height: Optional[int] = Field(description="Image/video height in pixels")
+    size_bytes: int = Field(description="File size in bytes", gt=0)
+    format: str = Field(description="File format (e.g., jpeg, png, mp4)")
+    priority: int = Field(description="Relevance score (0-100)", ge=0, le=100)
     duration_seconds: Optional[float] = Field(
-        description="Video duration in seconds",
-        gt=0
+        description="Video duration in seconds", gt=0
     )
 
 
@@ -94,19 +72,13 @@ class MediaAsset(BaseModel):
         metadata (MediaMetadata): Asset metadata
         context (str): Context in which the media appears
     """
-    url: HttpUrl = Field(
-        description="URL of the media asset"
-    )
+
+    url: HttpUrl = Field(description="URL of the media asset")
     type: str = Field(
-        description="Asset type (image or video)",
-        pattern="^(image|video)$"
+        description="Asset type (image or video)", pattern="^(image|video)$"
     )
-    metadata: MediaMetadata = Field(
-        description="Asset metadata"
-    )
-    context: str = Field(
-        description="Context in which the media appears"
-    )
+    metadata: MediaMetadata = Field(description="Asset metadata")
+    context: str = Field(description="Context in which the media appears")
 
 
 class PaginationMeta(BaseModel):
@@ -119,20 +91,11 @@ class PaginationMeta(BaseModel):
         total_count (int): Total number of items
         remaining_count (int): Number of items remaining
     """
-    next_cursor: Optional[str] = Field(
-        description="Token for next page"
-    )
-    has_more: bool = Field(
-        description="Whether more items exist"
-    )
-    total_count: int = Field(
-        description="Total number of items",
-        ge=0
-    )
-    remaining_count: int = Field(
-        description="Number of items remaining",
-        ge=0
-    )
+
+    next_cursor: Optional[str] = Field(description="Token for next page")
+    has_more: bool = Field(description="Whether more items exist")
+    total_count: int = Field(description="Total number of items", ge=0)
+    remaining_count: int = Field(description="Number of items remaining", ge=0)
 
 
 class ScrapeRequest(BaseModel):
@@ -146,26 +109,18 @@ class ScrapeRequest(BaseModel):
         model (str): LLM model to use
         openai_api_key (Optional[str]): OpenAI API key (deprecated)
     """
-    url: HttpUrl = Field(
-        description="Website URL to scrape"
-    )
-    cursor: Optional[str] = Field(
-        description="Pagination cursor",
-        default=None
-    )
+
+    url: HttpUrl = Field(description="Website URL to scrape")
+    cursor: Optional[str] = Field(description="Pagination cursor", default=None)
     limit: Optional[int] = Field(
-        description="Number of items per page",
-        ge=1,
-        le=50,
-        default=10
+        description="Number of items per page", ge=1, le=50, default=10
     )
     model: str = Field(
         description="LLM model to use",
-        pattern="^(anthropic\\.claude-instant-v1|gpt-3\\.5-turbo|gpt-4)$"
+        pattern="^(anthropic\\.claude-instant-v1|gpt-3\\.5-turbo|gpt-4)$",
     )
     openai_api_key: Optional[str] = Field(
-        description="OpenAI API key (deprecated)",
-        default=None
+        description="OpenAI API key (deprecated)", default=None
     )
 
     @field_validator("url")
@@ -185,14 +140,9 @@ class TokenUsage(BaseModel):
         prompt_tokens (int): Number of tokens in prompt
         completion_tokens (int): Number of tokens in completion
     """
-    prompt_tokens: int = Field(
-        description="Number of tokens in prompt",
-        ge=0
-    )
-    completion_tokens: int = Field(
-        description="Number of tokens in completion",
-        ge=0
-    )
+
+    prompt_tokens: int = Field(description="Number of tokens in prompt", ge=0)
+    completion_tokens: int = Field(description="Number of tokens in completion", ge=0)
 
 
 class BaseResponse(BaseModel):
@@ -203,13 +153,9 @@ class BaseResponse(BaseModel):
         success (bool): Whether the request succeeded
         duration (float): Processing time in seconds
     """
-    success: bool = Field(
-        description="Whether the request succeeded"
-    )
-    duration: float = Field(
-        description="Processing time in seconds",
-        ge=0
-    )
+
+    success: bool = Field(description="Whether the request succeeded")
+    duration: float = Field(description="Processing time in seconds", ge=0)
 
 
 class ProfileResponse(BaseResponse):
@@ -220,12 +166,9 @@ class ProfileResponse(BaseResponse):
         data (CompanyProfile): Extracted company information
         token_usage (TokenUsage): LLM token usage stats
     """
-    data: CompanyProfile = Field(
-        description="Extracted company information"
-    )
-    token_usage: TokenUsage = Field(
-        description="LLM token usage stats"
-    )
+
+    data: CompanyProfile = Field(description="Extracted company information")
+    token_usage: TokenUsage = Field(description="LLM token usage stats")
 
 
 class MediaResponse(BaseResponse):
@@ -239,15 +182,10 @@ class MediaResponse(BaseResponse):
         media (List[MediaAsset]): List of media assets
         pagination (PaginationMeta): Pagination metadata
     """
-    url_scraped: HttpUrl = Field(
-        description="URL that was scraped"
-    )
-    media: List[MediaAsset] = Field(
-        description="List of media assets"
-    )
-    pagination: PaginationMeta = Field(
-        description="Pagination metadata"
-    )
+
+    url_scraped: HttpUrl = Field(description="URL that was scraped")
+    media: List[MediaAsset] = Field(description="List of media assets")
+    pagination: PaginationMeta = Field(description="Pagination metadata")
 
 
 class ErrorResponse(BaseModel):
@@ -261,20 +199,11 @@ class ErrorResponse(BaseModel):
         request_id (str): Unique request identifier
         timestamp (datetime): Error timestamp
     """
-    success: bool = Field(
-        description="Always False for errors",
-        default=False
-    )
-    error: str = Field(
-        description="Error message"
-    )
-    error_type: str = Field(
-        description="Type of error"
-    )
-    request_id: str = Field(
-        description="Unique request identifier"
-    )
+
+    success: bool = Field(description="Always False for errors", default=False)
+    error: str = Field(description="Error message")
+    error_type: str = Field(description="Type of error")
+    request_id: str = Field(description="Unique request identifier")
     timestamp: datetime = Field(
-        description="Error timestamp",
-        default_factory=datetime.utcnow
+        description="Error timestamp", default_factory=datetime.utcnow
     )

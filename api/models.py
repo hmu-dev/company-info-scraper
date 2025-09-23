@@ -1,6 +1,7 @@
 from pydantic import BaseModel, HttpUrl, Field
 from typing import List, Optional, Dict, Any
 
+
 class ScrapeRequest(BaseModel):
     url: HttpUrl
     openai_api_key: Optional[str] = None
@@ -9,12 +10,14 @@ class ScrapeRequest(BaseModel):
     cursor: Optional[str] = None
     limit: Optional[int] = Field(default=10, ge=1, le=100)
 
+
 class CompanyProfile(BaseModel):
     about_us: str
     our_culture: str
     our_team: str
     noteworthy_and_differentiated: str
     locations: str
+
 
 class MediaMetadata(BaseModel):
     width: Optional[int] = None
@@ -23,6 +26,7 @@ class MediaMetadata(BaseModel):
     format: Optional[str] = None
     content_type: Optional[str] = None
     upload_date: Optional[str] = None
+
 
 class MediaItem(BaseModel):
     url: str
@@ -33,6 +37,7 @@ class MediaItem(BaseModel):
     filename: str
     priority: int
 
+
 class PaginationMeta(BaseModel):
     total_count: int
     remaining_count: int
@@ -40,11 +45,13 @@ class PaginationMeta(BaseModel):
     next_cursor: Optional[str] = None
     previous_cursor: Optional[str] = None
 
+
 class ProfileResponse(BaseModel):
     success: bool
     url_scraped: str
     profile: CompanyProfile
     error: Optional[str] = None
+
 
 class MediaResponse(BaseModel):
     success: bool
@@ -53,6 +60,7 @@ class MediaResponse(BaseModel):
     pagination: Optional[PaginationMeta] = None
     error: Optional[str] = None
 
+
 class CombinedResponse(BaseModel):
     success: bool
     url_scraped: str
@@ -60,6 +68,7 @@ class CombinedResponse(BaseModel):
     media: List[MediaItem]
     pagination: Optional[PaginationMeta] = None
     error: Optional[str] = None
+
 
 class ErrorResponse(BaseModel):
     success: bool = False
