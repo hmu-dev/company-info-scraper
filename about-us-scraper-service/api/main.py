@@ -2,6 +2,7 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+
 # Temporarily disabled for basic deployment
 # from endpoints import media, profile
 # from middleware.compression import setup_compression

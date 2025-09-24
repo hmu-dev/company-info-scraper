@@ -34,16 +34,17 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
    ```
 
 4. Test split API endpoints:
+
    ```bash
    # Ultra-fast text extraction
    curl "http://localhost:3000/scrape/text?url=github.com"
-   
+
    # Paginated media extraction
    curl "http://localhost:3000/scrape/media?url=github.com&limit=10"
-   
+
    # AI enhancement when needed
    curl "http://localhost:3000/scrape/enhance?url=github.com"
-   
+
    # Health check
    curl "http://localhost:3000/health"
    ```

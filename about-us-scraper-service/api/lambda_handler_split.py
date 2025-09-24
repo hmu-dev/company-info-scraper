@@ -6,6 +6,7 @@ from mangum import Mangum
 
 handler = Mangum(app)
 
+
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         response = handler(event, context)

@@ -6,6 +6,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
