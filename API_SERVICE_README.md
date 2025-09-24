@@ -1,20 +1,20 @@
 # 🚀 AI Web Scraper API Service
 
-A lightweight, production-ready FastAPI service for extracting company information and media from websites using AI.
+A production-ready FastAPI service with hybrid intelligence for extracting company information and media from websites.
 
-## 🎯 **API-Only Service**
+## 🎯 **Hybrid API Service**
 
-This service provides a clean, dependency-minimal API service. Perfect for:
+This service provides a smart, hybrid approach combining speed and intelligence. Perfect for:
 
 - **Production deployments**
-- **Microservices architecture**
-- **Mobile app backends**
-- **Third-party integrations**
+- **High-volume applications**
+- **Cost-sensitive projects**
+- **Real-time processing**
 - **Serverless functions**
 
-## 📦 **Minimal Dependencies**
+## 📦 **Core Dependencies**
 
-The API service only includes essential dependencies:
+The API service includes essential dependencies for hybrid processing:
 
 ```bash
 # Core API framework
@@ -22,78 +22,89 @@ fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 python-multipart>=0.0.6
 
-# Web scraping and AI
-scrapegraphai>=0.1.0
+# Web scraping and processing
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 
-# Image processing
-pillow>=10.0.0
+# AWS integration
+boto3>=1.34.0
+mangum>=0.17.0
 
 # Data validation
 pydantic>=2.4.0
 ```
 
-## 🚀 **Quick Start (API Only)**
+## 🚀 **Quick Start**
 
-### 1. **Install API Dependencies**
+### 1. **Live API (Recommended)**
+
+The API is already deployed and ready to use:
+
+- **Base URL**: `https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/`
+- **Interactive Docs**: `https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/docs`
+- **Health Check**: `https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health`
+
+### 2. **Local Development**
 
 ```bash
-# Install only API dependencies
+# Install dependencies
 pip install -r requirements-api.txt
 
-# Or install from the main requirements file
-pip install fastapi uvicorn python-multipart scrapegraphai requests beautifulsoup4 pillow pydantic
+# Run with SAM (recommended)
+cd about-us-scraper-service
+sam build --use-container
+sam local start-api
+
+# Or run directly
+cd about-us-scraper-service/api
+python main_hybrid.py
 ```
 
-### 2. **Set Environment Variables**
+### 3. **Test the API**
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key-here"
+# Health check
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health"
+
+# Intelligent scraping
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/intelligent?url=github.com"
 ```
-
-### 3. **Run the API Service**
-
-```bash
-# Development mode
-uvicorn api:app --reload --host 0.0.0.0 --port 8000
-
-# Production mode
-uvicorn api:app --host 0.0.0.0 --port 8000 --workers 4
-```
-
-### 4. **Access the API**
-
-- **API Base**: `http://localhost:8000`
-- **Interactive Docs**: `http://localhost:8000/docs`
-- **OpenAPI Spec**: `http://localhost:8000/openapi.json`
-- **Health Check**: `http://localhost:8000/health`
 
 ## 📡 **API Endpoints**
 
-### **Company Profile Extraction**
+### **🧠 Intelligent Scraping** (Recommended)
 
 ```bash
-POST /scrape/profile
+GET /scrape/intelligent?url=github.com&include_media=true
 ```
 
-Extracts structured company information only (faster, mobile-optimized).
+**Features:**
+- Auto-discovers About Us pages
+- Extracts company info and media assets
+- Uses AI enhancement when needed
+- Confidence scoring
 
-### **Media Assets Extraction**
+### **⚡ Fast Scraping** (Speed Optimized)
 
 ```bash
-POST /scrape/media
+GET /scrape/fast?url=example.com&include_media=true
 ```
 
-Downloads and processes company media assets with metadata.
+**Features:**
+- Pure programmatic extraction
+- Fastest response times (0.2-0.3s)
+- No AI costs
+- Good for high-volume requests
 
-### **Combined Extraction**
+### **🔄 Legacy Endpoints**
 
 ```bash
-POST /scrape/combined
-```
+# Basic scraping
+GET /scrape?url=company.com
 
-Extracts both profile and media in a single request.
+# About page scraping
+GET /scrape/about?url=company.com/about
+```
 
 ## 🔧 **Configuration**
 
@@ -101,59 +112,58 @@ Extracts both profile and media in a single request.
 
 | Variable         | Description                      | Default   |
 | ---------------- | -------------------------------- | --------- |
-| `OPENAI_API_KEY` | OpenAI API key for AI processing | Required  |
-| `PORT`           | API server port                  | `8000`    |
-| `HOST`           | API server host                  | `0.0.0.0` |
+| `AWS_REGION`     | AWS region for deployment        | `us-east-1` |
+| `ENVIRONMENT`    | Deployment environment           | `dev`     |
+| `RATE_LIMIT_RPM` | Requests per minute limit        | `60`      |
 
 ### **API Request Format**
 
-```json
-{
-  "url": "https://company-website.com",
-  "openai_api_key": "optional-override-key",
-  "model": "gpt-3.5-turbo",
-  "include_base64": false
-}
+```bash
+# Intelligent scraping
+GET /scrape/intelligent?url=github.com&include_media=true&max_about_pages=3
+
+# Fast scraping  
+GET /scrape/fast?url=example.com&include_media=true
 ```
 
 ## 🏗️ **Production Deployment**
 
-### **Docker Deployment**
+### **AWS Lambda (Current)**
 
-```dockerfile
-FROM python:3.11-slim
+The service is deployed on AWS Lambda using SAM:
 
-WORKDIR /app
+- **Live URL**: https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/
+- **Region**: us-east-1
+- **Auto-deployment**: GitHub Actions CI/CD pipeline
 
-# Install only API dependencies
-COPY requirements-api.txt .
-RUN pip install --no-cache-dir -r requirements-api.txt
+### **Manual Deployment**
 
-# Copy API code
-COPY api.py .
-
-# Set environment
-ENV OPENAI_API_KEY=""
-EXPOSE 8000
-
-# Run API
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+```bash
+cd about-us-scraper-service
+sam build --use-container
+sam deploy --guided
 ```
 
-### **AWS Lambda Deployment**
+### **Local Development**
 
-The service is compatible with AWS Lambda using the `lambda_handler.py` wrapper.
-
-### **Cloud Run / Container Services**
-
-Perfect for Google Cloud Run, Azure Container Instances, or any container platform.
+```bash
+cd about-us-scraper-service
+sam local start-api
+```
 
 ## 📊 **Performance Characteristics**
 
+### **Intelligent Endpoint** (`/scrape/intelligent`)
+- **Typical Response**: 1-3 seconds
+- **Fast Path**: 0.2-0.5 seconds (when AI not needed)
+- **Smart Path**: 2-5 seconds (when AI enhancement used)
+- **Memory Usage**: ~100-200MB
+
+### **Fast Endpoint** (`/scrape/fast`)
+- **Response Time**: 0.2-0.3 seconds typically
 - **Memory Usage**: ~50-100MB
-- **Startup Time**: ~2-3 seconds
-- **Dependencies**: 8 core packages (vs 15+ with UI)
-- **Image Size**: ~200MB (vs 500MB+ with UI)
+- **No AI costs**: Pure programmatic processing
+- **High throughput**: Can handle high request volumes
 
 ## 🔒 **Security Features**
 
@@ -173,13 +183,18 @@ Perfect for Google Cloud Run, Azure Container Instances, or any container platfo
 ## 🧪 **Testing**
 
 ```bash
-# Test the API
-curl -X POST http://localhost:8000/scrape/profile \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://openai.com"}'
+# Test the live API
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health"
 
-# Health check
-curl http://localhost:8000/health
+# Test intelligent scraping
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/intelligent?url=github.com"
+
+# Test fast scraping
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/fast?url=example.com"
+
+# Local testing
+cd about-us-scraper-service
+sam local invoke ScraperFunction -e events/test_event.json
 ```
 
 ## 🚫 **What's Not Included**
@@ -187,28 +202,25 @@ curl http://localhost:8000/health
 This API service intentionally excludes:
 
 - ❌ **Interactive UI** (API-only service)
-- ❌ **Playwright** (unless specifically needed for dynamic content)
-- ❌ **Advanced video processing** (ffmpeg-python)
-- ❌ **SVG processing** (cairosvg)
+- ❌ **Complex AI dependencies** (uses hybrid approach)
+- ❌ **Advanced video processing** (basic media extraction only)
 - ❌ **Development tools** (pytest, black, etc.)
 
-## 🔄 **Migration from Full Service**
+## 🔄 **Migration from Legacy Service**
 
-If you're currently using the full service with UI components:
+If you're currently using the legacy endpoints:
 
-1. **Install API dependencies**: `pip install -r requirements-api.txt`
-2. **Set environment variables**: `export OPENAI_API_KEY="your-key"`
-3. **Update your code**: Use the same API endpoints
-4. **Deploy**: Use the lightweight API service
-
-The API endpoints and response formats remain identical - you're just removing the UI layer.
+1. **Update endpoints**: Use `/scrape/intelligent` instead of `/scrape`
+2. **Add parameters**: Include `include_media=true` for media extraction
+3. **Handle responses**: New response format includes confidence scoring
+4. **Deploy**: Use the current AWS Lambda deployment
 
 ## 📚 **Documentation**
 
-- **Full API Documentation**: Available at `/docs` when running
-- **OpenAPI Specification**: Available at `/openapi.json`
+- **Interactive API Docs**: [https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/docs](https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/docs)
 - **Main Project README**: See `README.md` for complete feature overview
+- **Deployment Guide**: See `docs/DEPLOYMENT_GUIDE.md`
 
 ---
 
-**Perfect for production deployments, microservices, and mobile app backends!** 🚀
+**Perfect for production deployments, high-volume applications, and cost-sensitive projects!** 🚀

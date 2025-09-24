@@ -1,10 +1,10 @@
 # 🌐 AI Web Scraper Deployment Guide
 
-## AWS Deployment with Bedrock
+## AWS SAM Deployment
 
 ### Overview
 
-This guide covers deploying the AI Web Scraper API to AWS using AWS SAM (Serverless Application Model). The API uses Amazon Bedrock with Claude-Instant for content extraction and provides comprehensive monitoring and cost control.
+This guide covers deploying the AI Web Scraper API to AWS using AWS SAM (Serverless Application Model). The API uses a hybrid approach combining programmatic extraction with AI enhancement and provides comprehensive monitoring and cost control.
 
 ### Architecture
 
@@ -12,7 +12,7 @@ The deployment uses the following AWS services:
 
 - API Gateway: HTTP API for request handling
 - Lambda: Serverless compute for API endpoints
-- Bedrock: LLM service (Claude-Instant model)
+- Bedrock: LLM service (Claude-Instant model) - for AI enhancement
 - DynamoDB: Caching layer
 - S3 + CloudFront: Media storage and delivery
 - CloudWatch: Logging and monitoring
@@ -24,35 +24,30 @@ The deployment uses the following AWS services:
 2. AWS CLI configured
 3. AWS SAM CLI installed
 4. Access to Amazon Bedrock (request if needed)
+5. Python 3.9+
 
 ### Environment Variables
 
-Create a `.env` file with:
+The deployment uses the following configuration in `samconfig.toml`:
 
-```bash
-# AWS Configuration
-AWS_REGION=us-west-2
-AWS_PROFILE=default
-
-# Environment
-ENVIRONMENT=dev
-PROJECT_NAME=ai-web-scraper
-
-# API Configuration
-MAX_URL_LENGTH=2048
-MAX_CONTENT_LENGTH=10485760  # 10MB
-BLOCKED_DOMAINS=""
-
-# Rate Limiting
-RATE_LIMIT_RPM=60
-RATE_LIMIT_BURST=10
-
-# Cost Thresholds
-DAILY_COST_THRESHOLD=10.0  # $10/day
-HOURLY_BEDROCK_COST_THRESHOLD=1.0  # $1/hour
-
-# Monitoring
-LOG_RETENTION_DAYS=14
+```toml
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "ai-web-scraper-hybrid"
+s3_bucket = "your-deployment-bucket"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = [
+  "Environment=dev",
+  "DailyCostThreshold=10.0",
+  "HourlyBedrockCostThreshold=1.0",
+  "RateLimitRPM=60",
+  "RateLimitBurst=10",
+  "LogRetentionDays=14"
+]
 ```
 
 ### Deployment Steps
@@ -61,7 +56,7 @@ LOG_RETENTION_DAYS=14
 
    ```bash
    cd about-us-scraper-service
-   sam build
+   sam build --use-container
    ```
 
 2. Deploy the application:
@@ -71,10 +66,19 @@ LOG_RETENTION_DAYS=14
    ```
 
 3. Follow the guided deployment prompts to configure:
-   - Stack name
-   - AWS Region
+   - Stack name: `ai-web-scraper-hybrid`
+   - AWS Region: `us-east-1`
+   - S3 bucket for deployment artifacts
    - Environment variables
-   - IAM roles
+
+### Current Deployment
+
+The API is currently deployed and available at:
+
+- **Live URL**: https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/
+- **Interactive Docs**: https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/docs
+- **Region**: us-east-1
+- **Stack Name**: ai-web-scraper-hybrid
 
 ### Monitoring Setup
 
@@ -219,210 +223,14 @@ MIT License - see LICENSE file for details
 
 ---
 
-## Alternative Deployment Options
-
-## Quick Public Access with ngrok (5 minutes)
-
-### Step 1: Start the Streamlit App
-
-```bash
-cd /Users/allanjohnson/Documents/Code/awesome-llm-apps/starter_ai_agents/web_scrapping_ai_agent
-source venv/bin/activate
-streamlit run ai_scrapper.py --server.port 8501
-```
-
-### Step 2: Open a New Terminal and Start ngrok
-
-```bash
-ngrok http 8501
-```
-
-### Step 3: Get Your Public URL
-
-After running ngrok, you'll see output like:
-
-```
-Web Interface                 http://127.0.0.1:4040
-Forwarding                    https://abcd-1234.ngrok.app -> http://localhost:8501
-```
-
-**Share this URL:** `https://abcd-1234.ngrok.app` - Anyone can access your app!
-
----
-
-## 🚀 Production Deployment Options
-
-### Option 1: Streamlit Community Cloud (Free & Easy)
-
-**Benefits:**
-
-- Free hosting
-- Automatic deployments from GitHub
-- Built-in HTTPS
-- No server management
-
-**Steps:**
-
-1. **Push to GitHub:**
-
-```bash
-git init
-git add .
-git commit -m "AI Web Scraper App"
-git remote add origin https://github.com/yourusername/ai-web-scraper.git
-git push -u origin main
-```
-
-2. **Deploy:**
-
-- Visit [share.streamlit.io](https://share.streamlit.io)
-- Connect GitHub
-- Select repository and `ai_scrapper.py`
-- Deploy!
-
-**Result:** `https://yourapp.streamlit.app`
-
----
-
-### Option 2: Railway (Easy with Custom Domain)
-
-**Benefits:**
-
-- Free tier available
-- Custom domains
-- Environment variables
-- Automatic deployments
-
-**Steps:**
-
-1. **Create `railway.toml`:**
-
-```toml
-[build]
-builder = "nixpacks"
-
-[deploy]
-startCommand = "streamlit run ai_scrapper.py --server.port $PORT --server.address 0.0.0.0"
-```
-
-2. **Deploy:**
-
-```bash
-npm install -g @railway/cli
-railway login
-railway init
-railway up
-```
-
----
-
-### Option 3: Heroku
-
-**Create these files:**
-
-**`Procfile`:**
-
-```
-web: streamlit run ai_scrapper.py --server.port $PORT --server.address 0.0.0.0 --server.enableCORS false --server.enableXsrfProtection false
-```
-
-**`setup.sh`:**
-
-```bash
-mkdir -p ~/.streamlit/
-echo "\
-[server]\n\
-headless = true\n\
-port = $PORT\n\
-enableCORS = false\n\
-\n\
-" > ~/.streamlit/config.toml
-```
-
-**Deploy:**
-
-```bash
-heroku create your-app-name
-git push heroku main
-```
-
----
-
-### Option 4: DigitalOcean App Platform
-
-**`app.yaml`:**
-
-```yaml
-name: ai-web-scraper
-services:
-  - name: web
-    source_dir: /
-    github:
-      repo: yourusername/ai-web-scraper
-      branch: main
-    run_command: streamlit run ai_scrapper.py --server.port $PORT --server.address 0.0.0.0
-    environment_slug: python
-    instance_count: 1
-    instance_size_slug: basic-xxs
-    http_port: 8080
-```
-
----
-
-## 🔧 Configuration for Public Access
-
-### Update Streamlit for Public Access
-
-Create `.streamlit/config.toml`:
-
-```toml
-[server]
-headless = true
-port = 8501
-enableCORS = false
-enableXsrfProtection = false
-
-[browser]
-gatherUsageStats = false
-```
-
-### Environment Variables
-
-For production, set:
-
-```bash
-export STREAMLIT_SERVER_HEADLESS=true
-export STREAMLIT_SERVER_ENABLE_CORS=false
-export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
-```
-
----
-
-## 🛡️ Security Considerations
-
-### For ngrok (temporary testing):
-
-- ✅ Quick and easy
-- ⚠️ Tunnel URLs change on restart
-- ⚠️ Anyone with URL can access
-
-### For production:
-
-- 🔐 Use HTTPS (most platforms provide this)
-- 🛡️ Consider adding authentication
-- 📊 Monitor usage and costs
-- 🔒 Set up environment variables for API keys
-
----
-
-## 📱 Testing Your Deployment
+## 🧪 Testing Your Deployment
 
 ### Health Check Endpoints
 
 Visit these URLs to test:
 
-- `/` - Main app
-- `/_stcore/health` - Streamlit health check
+- `/health` - API health check
+- `/docs` - Interactive API documentation
 
 ### Test with Different Devices
 
@@ -430,39 +238,31 @@ Visit these URLs to test:
 - Mobile browsers
 - Different networks
 
----
-
-## 🚨 Quick Start (Right Now!)
-
-**Option A: ngrok (Immediate Access)**
+### API Testing
 
 ```bash
-# Terminal 1
-streamlit run ai_scrapper.py
+# Health check
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health"
 
-# Terminal 2
-ngrok http 8501
+# Intelligent scraping
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/intelligent?url=github.com"
+
+# Fast scraping
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/fast?url=example.com"
 ```
-
-**Option B: Streamlit Cloud (Permanent)**
-
-1. Push code to GitHub
-2. Go to share.streamlit.io
-3. Deploy in 2 clicks
 
 ---
 
 ## 💡 Pro Tips
 
-1. **For Testing:** Use ngrok for quick sharing with specific people
-2. **For Demo:** Use Streamlit Cloud for permanent demo URLs
-3. **For Production:** Use Railway/Heroku with custom domain
-4. **API Version:** Deploy the FastAPI version (`api.py`) for integration
+1. **For Production:** Use the current AWS Lambda deployment
+2. **For Development:** Use `sam local start-api` for local testing
+3. **For Integration:** Use the `/scrape/intelligent` endpoint for best results
+4. **For High Volume:** Use the `/scrape/fast` endpoint for speed
 
 ## 🔗 Links
 
-- [Streamlit Cloud](https://share.streamlit.io)
-- [Railway](https://railway.app)
-- [Heroku](https://heroku.com)
-- [DigitalOcean](https://digitalocean.com)
-- [ngrok](https://ngrok.com)
+- [AWS SAM Documentation](https://docs.aws.amazon.com/serverless-application-model/)
+- [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
+- [API Gateway Documentation](https://docs.aws.amazon.com/apigateway/)
+- [Amazon Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)

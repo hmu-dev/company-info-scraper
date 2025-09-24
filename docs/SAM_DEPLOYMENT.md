@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless Application Model). The application uses Amazon Bedrock with Claude-Instant for content extraction and includes comprehensive monitoring and cost control.
+This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless Application Model). The application uses a hybrid approach combining programmatic extraction with AI enhancement via Amazon Bedrock and includes comprehensive monitoring and cost control.
 
 ## Prerequisites
 
@@ -11,6 +11,7 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
 3. SAM CLI installed
 4. Python 3.9+
 5. Access to Amazon Bedrock (request if needed)
+6. Docker (for containerized builds)
 
 ## Local Development Setup
 
@@ -24,20 +25,27 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
 2. Install dependencies:
 
    ```bash
-   pip install -r api/requirements.txt
+   pip install -r requirements-api.txt
    ```
 
 3. Run locally:
 
    ```bash
+   cd about-us-scraper-service
+   sam build --use-container
    sam local start-api
    ```
 
 4. Test endpoints:
    ```bash
-   curl -X POST http://localhost:3000/v1/profile \
-     -H "Content-Type: application/json" \
-     -d '{"url": "https://example.com"}'
+   # Health check
+   curl http://localhost:3000/health
+   
+   # Intelligent scraping
+   curl "http://localhost:3000/scrape/intelligent?url=github.com"
+   
+   # Fast scraping
+   curl "http://localhost:3000/scrape/fast?url=example.com"
    ```
 
 ## Configuration
@@ -50,9 +58,9 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
    [default]
    [default.deploy]
    [default.deploy.parameters]
-   stack_name = "ai-web-scraper"
+   stack_name = "ai-web-scraper-hybrid"
    s3_bucket = "your-deployment-bucket"
-   region = "us-west-2"
+   region = "us-east-1"
    confirm_changeset = true
    capabilities = "CAPABILITY_IAM"
    parameter_overrides = [
@@ -65,32 +73,27 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
    ]
    ```
 
-2. Bedrock Configuration:
-   Update `api/config/bedrock.yaml`:
+2. Current Deployment:
+   The API is currently deployed and available at:
 
-   ```yaml
-   Models:
-     Default:
-       Id: anthropic.claude-instant-v1
-       MaxTokens: 1000
-       Temperature: 0.7
-   ```
+   - **Live URL**: https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/
+   - **Interactive Docs**: https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/docs
+   - **Region**: us-east-1
+   - **Stack Name**: ai-web-scraper-hybrid
 
-3. Monitoring Configuration:
-   Update `api/config/monitoring.yaml`:
-   ```yaml
-   Metrics:
-     RequestDuration:
-       Unit: Seconds
-       Threshold: 10
-   ```
+3. Hybrid Configuration:
+   The application uses a hybrid approach:
+   - **Fast Path**: Programmatic extraction (0.2-0.3s)
+   - **Smart Path**: AI enhancement when needed (2-5s)
+   - **Bedrock Integration**: Claude-Instant for AI processing
 
 ## Deployment
 
 1. Build:
 
    ```bash
-   sam build
+   cd about-us-scraper-service
+   sam build --use-container
    ```
 
 2. Validate:
@@ -110,23 +113,38 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
    sam deploy
    ```
 
+### Current Deployment Status
+
+The API is currently deployed and running:
+- **Status**: ✅ Live and operational
+- **Region**: us-east-1
+- **Last Updated**: Recent deployment with hybrid approach
+- **Health Check**: https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health
+
 ## Testing
 
-1. Unit Tests:
+1. Live API Testing:
 
    ```bash
-   python -m pytest tests/
+   # Health check
+   curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health"
+   
+   # Intelligent scraping
+   curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/intelligent?url=github.com"
+   
+   # Fast scraping
+   curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/fast?url=example.com"
    ```
 
-2. Integration Tests:
+2. Local Testing:
 
    ```bash
    sam local invoke ScraperFunction -e events/test_event.json
    ```
 
-3. Load Tests:
+3. Unit Tests:
    ```bash
-   artillery run tests/load/scenarios.yml
+   python -m pytest tests/
    ```
 
 ## Monitoring

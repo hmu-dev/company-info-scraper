@@ -1,60 +1,82 @@
-# About Us Scraper Service
+# AI Web Scraper Service
 
-A serverless API service that extracts company information from websites using AI. The service uses AWS Bedrock with Claude-Instant to analyze web content and return structured company information.
+A serverless API service with hybrid intelligence that extracts company information and media from websites. The service combines fast programmatic extraction with smart AI enhancement using AWS Bedrock.
 
 ## Features
 
-- **Company Profile Extraction**: Analyzes websites to extract:
+- **🧠 Hybrid Intelligence**: Combines fast programmatic extraction with smart AI enhancement
+- **⚡ Speed Optimized**: Fast endpoints (0.2-0.3s) for high-volume requests
+- **🔍 Smart Navigation**: Automatically finds relevant About Us pages
+- **📸 Media Asset Processing**: Extracts images, videos, and documents with prioritization
+- **📊 Confidence Scoring**: Provides quality metrics for extracted data
+- **🌐 Live Deployment**: Available at https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/
 
-  - About Us information
-  - Company culture
-  - Team details
-  - Noteworthy and differentiated features
-  - Company locations
+## API Endpoints
 
-- **Media Asset Processing**:
+### 🧠 **`/scrape/intelligent`** - **RECOMMENDED**
+- ⚡ Starts with fast programmatic extraction
+- 🧠 Falls back to AI when results are poor
+- 🔍 Auto-discovers About Us pages
+- 📸 Extracts all media assets
+- 🎯 Perfect for comprehensive company analysis
 
-  - Extracts relevant images and videos
-  - Converts SVGs to PNGs for better compatibility
-  - Filters media by relevance and quality
-  - Stores media in S3 with CloudFront CDN
+### ⚡ **`/scrape/fast`** - **SPEED FOCUSED**
+- 🏃‍♂️ Pure programmatic approach (no AI)
+- ⚡ Fastest response times (0.2-0.3s)
+- 📊 Good for basic company info
+- 💰 Most cost-effective
 
-- **Performance & Scalability**:
-  - Serverless architecture using AWS Lambda
-  - DynamoDB caching for improved response times
-  - CloudFront CDN for media delivery
-  - Rate limiting and request validation
+### 🔄 **`/scrape` & `/scrape/about`** - **LEGACY**
+- 📜 Simple programmatic extraction
+- 🔗 Use for existing integrations
 
 ## Architecture Decisions
 
-1. **AWS SAM over Terraform**:
+1. **Hybrid Intelligence Approach**:
+
+   - Fast programmatic extraction for speed
+   - AI enhancement only when needed
+   - Cost-effective for high-volume usage
+   - Best of both worlds: speed + accuracy
+
+2. **AWS SAM Deployment**:
 
    - Focused on AWS-only deployment
    - Better local development experience
    - Simpler configuration for serverless
    - Native AWS service integration
 
-2. **Bedrock with Claude-Instant**:
+3. **Bedrock with Claude-Instant**:
 
    - Pay-as-you-go pricing
    - Lower latency than GPT-3.5
    - Better cost-effectiveness for our use case
    - Native AWS integration
 
-3. **Separate Media Processing**:
+4. **Smart Media Processing**:
 
-   - Paginated media responses
-   - Independent scaling
-   - Optimized mobile experience
-   - Efficient caching
+   - Prioritized media extraction (logos first)
+   - Efficient caching and storage
+   - Multiple media types support
+   - CloudFront CDN for delivery
 
-4. **Monitoring & Cost Control**:
+5. **Monitoring & Cost Control**:
    - Comprehensive CloudWatch metrics
    - Cost-based alerts
    - Usage tracking
    - Performance monitoring
 
 ## Getting Started
+
+### Live API (Recommended)
+
+The API is deployed and ready to use:
+
+- **Base URL**: `https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/`
+- **Interactive Docs**: `https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/docs`
+- **Health Check**: `https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health`
+
+### Local Development
 
 1. Prerequisites:
 
@@ -64,13 +86,15 @@ A serverless API service that extracts company information from websites using A
    brew install aws-sam-cli
 
    # Install dependencies
-   pip install -r api/requirements.txt
+   pip install -r requirements-api.txt
    ```
 
 2. Local Development:
 
    ```bash
    # Start API locally
+   cd about-us-scraper-service
+   sam build --use-container
    sam local start-api
 
    # Run tests
@@ -81,32 +105,24 @@ A serverless API service that extracts company information from websites using A
 
    ```bash
    # Build
-   sam build
+   sam build --use-container
 
    # Deploy
    sam deploy --guided
    ```
 
-## API Endpoints
+### API Usage Examples
 
-1. Profile Extraction:
+```bash
+# Intelligent scraping (recommended)
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/intelligent?url=github.com&include_media=true"
 
-   ```bash
-   POST /v1/profile
-   {
-     "url": "https://example.com"
-   }
-   ```
+# Fast scraping (speed optimized)
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/fast?url=example.com&include_media=true"
 
-2. Media Assets:
-   ```bash
-   POST /v1/media
-   {
-     "url": "https://example.com",
-     "cursor": "optional-pagination-cursor",
-     "limit": 10
-   }
-   ```
+# Health check
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health"
+```
 
 ## Configuration
 
