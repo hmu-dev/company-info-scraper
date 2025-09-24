@@ -1,14 +1,15 @@
-# 🚀 AI Web Scraper API
+# 🚀 AI Web Scraper API - Split Approach
 
-A FastAPI-based service with hybrid intelligence that extracts company information and media content from websites.
+A FastAPI-based service with ultra-fast text extraction and paginated media extraction for optimal performance.
 
 ## Features
 
-- 🧠 **Hybrid Intelligence**: Combines fast programmatic extraction with smart AI enhancement
+- ⚡ **Ultra-Fast Text**: Lightning-fast text extraction (0.1-0.3s)
+- 📄 **Smart Pagination**: Cursor-based pagination for efficient media loading
+- 🎯 **Split Strategy**: Separate endpoints for text and media for progressive loading
 - 🧭 **Smart Navigation**: Automatically finds About/Company pages
-- ⚡ **Speed Optimized**: Fast endpoints (0.2-0.3s) for high-volume requests
-- 🎬 **Media Processing**: Downloads and processes images, videos, and documents
-- 📊 **Structured Output**: Returns organized JSON with confidence scoring
+- 🎬 **Media Processing**: Extracts images, videos, documents, and icons with prioritization
+- 💰 **Cost Effective**: AI only when needed, programmatic extraction for speed
 - 🛡️ **Error Handling**: Robust error handling with fallback strategies
 
 ## Quick Start
@@ -219,27 +220,49 @@ sam local invoke ScraperFunction -e events/test_event.json
 
 Health check endpoint
 
-### GET /scrape/intelligent
+### GET /scrape/text ⚡
 
-**Recommended endpoint** - Hybrid intelligence approach
-
-**Parameters:**
-- `url`: Website URL to scrape (required)
-- `include_media`: Include media asset extraction (default: true)
-- `max_about_pages`: Maximum about pages to analyze (default: 3)
-- `force_ai`: Force AI analysis even if programmatic results are good (default: false)
-
-### GET /scrape/fast
-
-**Speed optimized endpoint** - Programmatic extraction only
+**Ultra-fast text extraction** - Lightning-fast company information (0.1-0.3s)
 
 **Parameters:**
 - `url`: Website URL to scrape (required)
-- `include_media`: Include media asset extraction (default: true)
+
+**Returns:**
+- Company information (founded, employees, location, mission)
+- About page discovery and analysis
+- Fast response times for initial loading
+
+### GET /scrape/media 📸
+
+**Paginated media extraction** - Smart media asset discovery with pagination
+
+**Parameters:**
+- `url`: Website URL to scrape (required)
+- `cursor`: Pagination cursor for next page (optional)
+- `limit`: Number of media assets per page (default: 20, max: 50)
+- `media_type`: Filter by type: image, video, document, icon (optional)
+
+**Returns:**
+- Paginated media assets with smart prioritization
+- Cursor-based pagination for efficient loading
+- Media summary with counts by type
+
+### GET /scrape/enhance 🧠
+
+**AI enhancement** - AI-powered content enhancement when needed
+
+**Parameters:**
+- `url`: Website URL to scrape (required)
+- `text_data`: Pre-extracted text data to enhance (optional)
+
+**Returns:**
+- AI-enhanced company information
+- Confidence scores and quality metrics
+- Smart recommendations for when to use AI
 
 ### GET /scrape
 
-**Legacy endpoint** - Basic programmatic scraping
+**Legacy endpoint** - Redirects to `/scrape/text`
 
 ### GET /scrape/about
 
@@ -247,22 +270,32 @@ Health check endpoint
 
 ## How It Works
 
-### Intelligent Endpoint (`/scrape/intelligent`)
+### Split API Strategy
 
-1. **URL Analysis**: Takes any company URL as input
-2. **Fast Start**: Begins with programmatic extraction
+The API uses a split approach for optimal performance:
+
+### Text Endpoint (`/scrape/text`) ⚡
+
+1. **Ultra-Fast Start**: Pure programmatic extraction (0.1-0.3s)
+2. **Pattern Matching**: Uses regex and HTML parsing for company info
 3. **Auto-Discovery**: Finds About Us pages automatically
-4. **Analysis**: Extracts company info and media assets
-5. **Smart Decision**: Uses AI only when programmatic results are poor
-6. **Results**: Returns comprehensive analysis with performance metrics
+4. **Company Data**: Extracts founded year, employees, location, mission
+5. **Fast Results**: Perfect for initial app loading
 
-### Fast Endpoint (`/scrape/fast`)
+### Media Endpoint (`/scrape/media`) 📸
 
-1. **Programmatic Only**: No AI processing (fastest possible)
-2. **Pattern Matching**: Uses regex and HTML parsing
-3. **Media Extraction**: Still extracts all media assets
-4. **Basic Discovery**: Limited about page discovery
-5. **Fast Results**: Returns in 0.2-0.3 seconds typically
+1. **Smart Discovery**: Finds all media assets (images, videos, documents, icons)
+2. **Prioritization**: Logos and brand assets ranked highest
+3. **Cursor Pagination**: Efficient pagination without page numbers
+4. **Progressive Loading**: Load media after text for optimal UX
+5. **Filtering**: Filter by media type and limit results
+
+### Enhancement Endpoint (`/scrape/enhance`) 🧠
+
+1. **AI Analysis**: Uses AI when programmatic results are poor
+2. **Smart Fallback**: Only when text extraction is incomplete
+3. **Confidence Scoring**: Provides quality metrics
+4. **Cost Effective**: AI only when needed
 
 ## Error Handling
 
