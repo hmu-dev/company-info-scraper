@@ -29,6 +29,19 @@ def test_fastapi_app_creation():
         pytest.fail(f"Failed to create FastAPI app: {e}")
 
 
+def test_split_api_imports():
+    """Test that the split API modules can be imported."""
+    try:
+        from about_us_scraper_service.api.main_split import app
+        from about_us_scraper_service.api.lambda_handler_split import lambda_handler
+        
+        assert app is not None
+        assert app.title == "AI Web Scraper API - Split Approach"
+        assert callable(lambda_handler)
+    except ImportError as e:
+        pytest.fail(f"Failed to import split API modules: {e}")
+
+
 def test_health_endpoint_exists():
     """Test that the health endpoint is registered."""
     from api.main import app

@@ -1,13 +1,13 @@
-# 🕵️‍♂️ AI Web Scraper
+# 🕵️‍♂️ AI Web Scraper - Split API
 
-A powerful AI-driven web scraping tool that extracts comprehensive company profiles including text content and media files. Built with FastAPI for robust API access and AWS Lambda serverless deployment.
+A powerful AI-driven web scraping tool with **ultra-fast text extraction** and **paginated media processing**. Built with FastAPI for robust API access and AWS Lambda serverless deployment.
 
 ## ✨ Features
 
-- **🧠 Hybrid Intelligence**: Combines fast programmatic extraction with smart AI enhancement
+- **⚡ Ultra-Fast Text**: Split endpoints for lightning-fast text extraction (0.2-0.3s)
+- **📸 Smart Pagination**: Cursor-based pagination for efficient media loading
+- **🧠 AI Enhancement**: Optional AI-powered content analysis when needed
 - **🚀 FastAPI Service**: High-performance API service with automatic documentation
-- **⚡ Speed Optimized**: Fast endpoints (0.2-0.3s) for high-volume requests
-- **🖼️ Media Extraction**: Downloads and processes images, videos, and documents
 - **🔍 Smart Navigation**: Automatically finds relevant "About Us" pages
 - **📊 Structured Output**: Organized company profiles with confidence scoring
 - **🌐 AWS Deployed**: Live at https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/
@@ -15,28 +15,33 @@ A powerful AI-driven web scraping tool that extracts comprehensive company profi
 
 ## 🔬 How It Works
 
-The AI Web Scraper uses a **hybrid approach** that combines the speed of programmatic extraction with the intelligence of AI analysis:
+The AI Web Scraper uses a **split API strategy** that separates text extraction from media processing for optimal performance:
 
-### 🎯 **Hybrid Intelligence Strategy**
+### 🎯 **Split API Strategy**
 
-Our API offers multiple endpoints optimized for different use cases:
+Our API offers specialized endpoints for different use cases:
 
-#### 🧠 **`/scrape/intelligent`** - **RECOMMENDED**
-- ⚡ Starts with fast programmatic extraction
-- 🧠 Falls back to AI when results are poor
-- 🔍 Auto-discovers About Us pages
-- 📸 Extracts all media assets
-- 🎯 Perfect for comprehensive company analysis
+#### ⚡ **`/scrape/text`** - **ULTRA-FAST TEXT**
+- 🏃‍♂️ Pure programmatic extraction (0.2-0.3s)
+- 📊 Company information and about pages
+- 💰 Most cost-effective for text-only needs
+- 🎯 Perfect for initial app loading
 
-#### ⚡ **`/scrape/fast`** - **SPEED FOCUSED**
-- 🏃‍♂️ Pure programmatic approach (no AI)
-- ⚡ Fastest response times (0.2-0.3s)
-- 📊 Good for basic company info
-- 💰 Most cost-effective
+#### 📸 **`/scrape/media`** - **PAGINATED MEDIA**
+- 🔄 Cursor-based pagination for infinite scroll
+- 🖼️ Images, videos, documents, icons
+- 📊 Smart prioritization (logos first)
+- ⚡ Progressive loading support
+
+#### 🧠 **`/scrape/enhance`** - **AI ENHANCEMENT**
+- 🧠 AI-powered content analysis when needed
+- 📈 Enhanced insights and summaries
+- 🎯 Use when programmatic results are insufficient
+- 💡 Smart confidence scoring
 
 #### 🔄 **`/scrape` & `/scrape/about`** - **LEGACY**
-- 📜 Simple programmatic extraction
-- 🔗 Use for existing integrations
+- 📜 Backward compatibility endpoints
+- 🔗 Redirect to `/scrape/text`
 
 ## 🚀 Quick Start
 
@@ -49,11 +54,17 @@ Our API offers multiple endpoints optimized for different use cases:
 #### **Example API Calls:**
 
 ```bash
-# Intelligent scraping (recommended)
-curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/intelligent?url=github.com&include_media=true"
+# Ultra-fast text extraction
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/text?url=github.com"
 
-# Fast scraping (speed optimized)
-curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/fast?url=example.com&include_media=true"
+# Paginated media extraction
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/media?url=github.com&limit=10"
+
+# Next page of media (using cursor)
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/media?url=github.com&cursor=bWVkaWE6MTA=&limit=10"
+
+# AI enhancement when needed
+curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/enhance?url=github.com"
 
 # Health check
 curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health"
@@ -63,21 +74,46 @@ curl "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/health"
 
 ```python
 import requests
+import base64
 
-# Intelligent scraping with media
-response = requests.get(
-    "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/intelligent",
-    params={
-        "url": "github.com",
-        "include_media": True,
-        "max_about_pages": 3
-    }
+# Ultra-fast text extraction
+text_response = requests.get(
+    "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/text",
+    params={"url": "github.com"}
 )
 
-result = response.json()
-print(f"Company: {result['title']}")
-print(f"Media assets: {result['media_summary']['total_assets']}")
-print(f"Processing time: {result['processing_time_seconds']}s")
+text_data = text_response.json()
+print(f"Company: {text_data['title']}")
+print(f"Description: {text_data['description']}")
+print(f"About pages found: {text_data['about_pages_found']}")
+
+# Paginated media extraction
+media_response = requests.get(
+    "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/media",
+    params={"url": "github.com", "limit": 10}
+)
+
+media_data = media_response.json()
+print(f"Media assets: {len(media_data['media_assets'])}")
+print(f"Total assets: {media_data['media_summary']['total_assets']}")
+
+# Get next page if available
+if media_data['pagination']['has_more']:
+    next_cursor = media_data['pagination']['next_cursor']
+    next_page = requests.get(
+        "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/media",
+        params={"url": "github.com", "cursor": next_cursor, "limit": 10}
+    )
+    print(f"Next page: {len(next_page.json()['media_assets'])} items")
+
+# AI enhancement when needed
+enhance_response = requests.get(
+    "https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/scrape/enhance",
+    params={"url": "github.com"}
+)
+
+enhance_data = enhance_response.json()
+print(f"Enhanced insights: {enhance_data['ai_insights']}")
 ```
 
 ## 🚀 Local Development

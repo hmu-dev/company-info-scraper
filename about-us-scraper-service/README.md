@@ -1,33 +1,39 @@
-# AI Web Scraper Service
+# AI Web Scraper Service - Split API
 
-A serverless API service with hybrid intelligence that extracts company information and media from websites. The service combines fast programmatic extraction with smart AI enhancement using AWS Bedrock.
+A serverless API service with **ultra-fast text extraction** and **paginated media processing**. The service uses a split strategy for optimal performance, separating text extraction from media processing.
 
 ## Features
 
-- **🧠 Hybrid Intelligence**: Combines fast programmatic extraction with smart AI enhancement
-- **⚡ Speed Optimized**: Fast endpoints (0.2-0.3s) for high-volume requests
+- **⚡ Ultra-Fast Text**: Split endpoints for lightning-fast text extraction (0.2-0.3s)
+- **📸 Smart Pagination**: Cursor-based pagination for efficient media loading
+- **🧠 AI Enhancement**: Optional AI-powered content analysis when needed
 - **🔍 Smart Navigation**: Automatically finds relevant About Us pages
-- **📸 Media Asset Processing**: Extracts images, videos, and documents with prioritization
 - **📊 Confidence Scoring**: Provides quality metrics for extracted data
 - **🌐 Live Deployment**: Available at https://cjp6f8947h.execute-api.us-east-1.amazonaws.com/
 
 ## API Endpoints
 
-### 🧠 **`/scrape/intelligent`** - **RECOMMENDED**
-- ⚡ Starts with fast programmatic extraction
-- 🧠 Falls back to AI when results are poor
-- 🔍 Auto-discovers About Us pages
-- 📸 Extracts all media assets
-- 🎯 Perfect for comprehensive company analysis
+### ⚡ **`/scrape/text`** - **ULTRA-FAST TEXT**
+- 🏃‍♂️ Pure programmatic extraction (0.2-0.3s)
+- 📊 Company information and about pages
+- 💰 Most cost-effective for text-only needs
+- 🎯 Perfect for initial app loading
 
-### ⚡ **`/scrape/fast`** - **SPEED FOCUSED**
-- 🏃‍♂️ Pure programmatic approach (no AI)
-- ⚡ Fastest response times (0.2-0.3s)
-- 📊 Good for basic company info
-- 💰 Most cost-effective
+### 📸 **`/scrape/media`** - **PAGINATED MEDIA**
+- 🔄 Cursor-based pagination for infinite scroll
+- 🖼️ Images, videos, documents, icons
+- 📊 Smart prioritization (logos first)
+- ⚡ Progressive loading support
+
+### 🧠 **`/scrape/enhance`** - **AI ENHANCEMENT**
+- 🧠 AI-powered content analysis when needed
+- 📈 Enhanced insights and summaries
+- 🎯 Use when programmatic results are insufficient
+- 💡 Smart confidence scoring
 
 ### 🔄 **`/scrape` & `/scrape/about`** - **LEGACY**
-- 📜 Simple programmatic extraction
+- 📜 Backward compatibility endpoints
+- 🔗 Redirect to `/scrape/text`
 - 🔗 Use for existing integrations
 
 ## Architecture Decisions

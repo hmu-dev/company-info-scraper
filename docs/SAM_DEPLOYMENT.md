@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless Application Model). The application uses a hybrid approach combining programmatic extraction with AI enhancement via Amazon Bedrock and includes comprehensive monitoring and cost control.
+This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless Application Model). The application uses a **split API strategy** with ultra-fast text extraction and paginated media processing, powered by Amazon Bedrock with Claude-Instant for AI enhancement when needed.
 
 ## Prerequisites
 
@@ -36,16 +36,19 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
    sam local start-api
    ```
 
-4. Test endpoints:
+4. Test split API endpoints:
    ```bash
    # Health check
    curl http://localhost:3000/health
    
-   # Intelligent scraping
-   curl "http://localhost:3000/scrape/intelligent?url=github.com"
+   # Ultra-fast text extraction
+   curl "http://localhost:3000/scrape/text?url=github.com"
    
-   # Fast scraping
-   curl "http://localhost:3000/scrape/fast?url=example.com"
+   # Paginated media extraction
+   curl "http://localhost:3000/scrape/media?url=github.com&limit=10"
+   
+   # AI enhancement when needed
+   curl "http://localhost:3000/scrape/enhance?url=github.com"
    ```
 
 ## Configuration
@@ -58,7 +61,7 @@ This guide covers deploying the AI Web Scraper API using AWS SAM (Serverless App
    [default]
    [default.deploy]
    [default.deploy.parameters]
-   stack_name = "ai-web-scraper-hybrid"
+   stack_name = "ai-web-scraper-split"
    s3_bucket = "your-deployment-bucket"
    region = "us-east-1"
    confirm_changeset = true
