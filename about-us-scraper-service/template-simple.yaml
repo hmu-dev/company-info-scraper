@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
-Description: AI Web Scraper API - Container-built with dependencies
+Description: AI Web Scraper API - Hybrid Approach (Fast + Smart)
 
 Parameters:
   Environment:
@@ -33,7 +33,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
-      Handler: lambda_handler_scraping.lambda_handler
+      Handler: lambda_handler_hybrid.lambda_handler
       Events:
         ApiEvent:
           Type: HttpApi
