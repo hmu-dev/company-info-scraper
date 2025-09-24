@@ -94,7 +94,7 @@ Resources:
             - Effect: Allow
               Action:
                 - bedrock:InvokeModel
-              Resource: !Sub "arn:aws:bedrock:${AWS::Region}::foundation-model/anthropic.claude-instant-v1"
+              Resource: "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-instant-v1"
         - DynamoDBCrudPolicy:
             TableName: !Ref CacheTable
         - S3CrudPolicy:
@@ -301,6 +301,7 @@ Resources:
                   [".", "MediaProcessingTime", ".", ".", {"stat": "Average"}]
                 ],
                 "period": 300,
+                "region": "${AWS::Region}",
                 "title": "API Performance"
               }
             },
@@ -314,6 +315,7 @@ Resources:
                   [".", "CompletionTokens", ".", ".", {"stat": "Sum"}]
                 ],
                 "period": 3600,
+                "region": "${AWS::Region}",
                 "title": "Token Usage"
               }
             },
@@ -326,6 +328,7 @@ Resources:
                   ["AiWebScraper", "cost_estimate_usd", "Model", "anthropic.claude-instant-v1", {"stat": "Sum"}]
                 ],
                 "period": 3600,
+                "region": "${AWS::Region}",
                 "title": "Bedrock Cost"
               }
             },
@@ -338,6 +341,7 @@ Resources:
                   ["AiWebScraper", "Errors", "Environment", "${Environment}", {"stat": "Sum"}]
                 ],
                 "period": 300,
+                "region": "${AWS::Region}",
                 "title": "Error Count"
               }
             }

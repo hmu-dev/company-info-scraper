@@ -2,13 +2,13 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-
-from endpoints import media, profile
-from middleware.compression import setup_compression
-from middleware.rate_limit import setup_rate_limiting
-from middleware.tracing import setup_tracing
-from middleware.validation import setup_validation
-from utils.versioning import setup_versioning
+# Temporarily disabled for basic deployment
+# from endpoints import media, profile
+# from middleware.compression import setup_compression
+# from middleware.rate_limit import setup_rate_limiting
+# from middleware.tracing import setup_tracing
+# from middleware.validation import setup_validation
+# from utils.versioning import setup_versioning
 
 app = FastAPI(
     title="AI Web Scraper API",
@@ -103,55 +103,59 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Set up compression
-setup_compression(
-    app,
-    minimum_size=int(os.getenv("COMPRESSION_MIN_SIZE", "1000")),
-    compression_level=int(os.getenv("COMPRESSION_LEVEL", "6")),
-    excluded_paths=["/health", "/metrics"],
-    excluded_types=[
-        "image/",
-        "video/",
-        "audio/",
-        "application/zip",
-        "application/x-gzip",
-        "application/x-brotli",
-        "application/x-rar",
-    ],
-)
+# Temporarily disable middleware for Lambda deployment
+# TODO: Re-enable middleware once basic deployment is working
 
-# Set up tracing (first to capture all requests)
-setup_tracing(app)
+# # Set up compression
+# setup_compression(
+#     app,
+#     minimum_size=int(os.getenv("COMPRESSION_MIN_SIZE", "1000")),
+#     compression_level=int(os.getenv("COMPRESSION_LEVEL", "6")),
+#     excluded_paths=["/health", "/metrics"],
+#     excluded_types=[
+#         "image/",
+#         "video/",
+#         "audio/",
+#         "application/zip",
+#         "application/x-gzip",
+#         "application/x-brotli",
+#         "application/x-rar",
+#     ],
+# )
 
-# Set up validation
-setup_validation(
-    app,
-    max_url_length=int(os.getenv("MAX_URL_LENGTH", "2048")),
-    allowed_schemes=["http", "https"],
-    blocked_domains=os.getenv("BLOCKED_DOMAINS", "").split(","),
-    max_content_length=int(os.getenv("MAX_CONTENT_LENGTH", "10485760")),  # 10MB
-)
+# # Set up tracing (first to capture all requests)
+# setup_tracing(app)
 
-# Set up rate limiting
-setup_rate_limiting(
-    app,
-    requests_per_minute=int(os.getenv("RATE_LIMIT_RPM", "60")),
-    burst_limit=int(os.getenv("RATE_LIMIT_BURST", "10")),
-    exclude_paths=["/health", "/metrics"],
-    key_func=lambda request: request.headers.get("X-API-Key", request.client.host),
-)
+# # Set up validation
+# setup_validation(
+#     app,
+#     max_url_length=int(os.getenv("MAX_URL_LENGTH", "2048")),
+#     allowed_schemes=["http", "https"],
+#     blocked_domains=os.getenv("BLOCKED_DOMAINS", "").split(","),
+#     max_content_length=int(os.getenv("MAX_CONTENT_LENGTH", "10485760")),  # 10MB
+# )
 
-# Set up versioning
-version_manager = setup_versioning(
-    app,
-    current_version=os.getenv("API_VERSION", "1.0.0"),
-    min_version=os.getenv("API_MIN_VERSION", "1.0.0"),
-    max_version=os.getenv("API_MAX_VERSION", "2.0.0"),
-)
+# # Set up rate limiting
+# setup_rate_limiting(
+#     app,
+#     requests_per_minute=int(os.getenv("RATE_LIMIT_RPM", "60")),
+#     burst_limit=int(os.getenv("RATE_LIMIT_BURST", "10")),
+#     exclude_paths=["/health", "/metrics"],
+#     key_func=lambda request: request.headers.get("X-API-Key", request.client.host),
+# )
 
-# Include routers
-app.include_router(media.router, prefix="/v1", tags=["media"])
-app.include_router(profile.router, prefix="/v1", tags=["profile"])
+# # Set up versioning
+# version_manager = setup_versioning(
+#     app,
+#     current_version=os.getenv("API_VERSION", "1.0.0"),
+#     min_version=os.getenv("API_MIN_VERSION", "1.0.0"),
+#     max_version=os.getenv("API_MAX_VERSION", "2.0.0"),
+# )
+
+# Temporarily disable routers for basic deployment
+# TODO: Re-enable routers once basic deployment is working
+# app.include_router(media.router, prefix="/v1", tags=["media"])
+# app.include_router(profile.router, prefix="/v1", tags=["profile"])
 
 
 @app.get("/health")

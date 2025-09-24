@@ -1,0 +1,26 @@
+{
+  "version": "2.0",
+  "routeKey": "GET /health",
+  "rawPath": "/health",
+  "rawQueryString": "",
+  "headers": {},
+  "requestContext": {
+    "accountId": "123456789012",
+    "apiId": "api123",
+    "domainName": "example.com",
+    "http": {
+      "method": "GET",
+      "path": "/health",
+      "protocol": "HTTP/1.1",
+      "sourceIp": "127.0.0.1",
+      "userAgent": "test"
+    },
+    "requestId": "test-request-id",
+    "routeKey": "GET /health",
+    "stage": "test",
+    "time": "09/Apr/2015:12:34:56 +0000",
+    "timeEpoch": 1428582896000
+  },
+  "body": null,
+  "isBase64Encoded": false
+}

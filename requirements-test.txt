@@ -30,7 +30,7 @@ memory-profiler>=0.61.0  # For memory profiling
 
 # Security Testing
 bandit>=1.7.5  # Security linter
-safety>=2.3.0  # Check for known security vulnerabilities
+# safety>=2.3.0  # Check for known security vulnerabilities - disabled due to pydantic conflicts
 
 # Documentation Testing
 sphinx>=7.1.0  # For documentation generation

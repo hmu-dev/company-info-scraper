@@ -15,6 +15,16 @@ pillow>=10.0.0
 # Data validation
 pydantic>=2.4.0
 
-# Optional: For advanced image processing (if needed)
-# cairosvg>=2.7.0
-# ffmpeg-python>=0.2.0
+# Compression middleware
+brotli>=1.0.9
+
+# Validation middleware
+validators>=0.22.0
+
+# Versioning utility
+semver>=3.0.0
+
+# Media processing dependencies
+aiohttp>=3.8.0
+cairosvg>=2.7.0
+ffmpeg-python>=0.2.0
