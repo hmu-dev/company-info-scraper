@@ -80,7 +80,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
-      Handler: lambda_handler.lambda_handler
+      Handler: lambda_handler_split.lambda_handler
       Events:
         ApiEvent:
           Type: HttpApi
