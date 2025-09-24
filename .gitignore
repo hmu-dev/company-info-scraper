@@ -39,3 +39,15 @@ api_media_output/
 *api_key*
 *secret*
 
+
+# Deployment artifacts
+*.zip
+deployed-package/
+.aws-sam/
+
+# Test artifacts
+.coverage
+coverage.xml
+pytest-report.html
+pytest-report.xml
+bandit-report.json
