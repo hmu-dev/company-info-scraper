@@ -288,13 +288,23 @@ def extract_media_assets(
                 }
             )
 
-    # Extract videos
+    # Extract videos with enhanced thumbnail support
     for video in soup.find_all(["video", "iframe"]):
         src = video.get("src") or video.get("data-src")
         if src:
             full_url = urljoin(base_url, src)
-            all_media.append(
-                {
+            
+            # Check if this is a video (not just any iframe)
+            is_video = (
+                video.name == "video" or 
+                any(platform in full_url.lower() for platform in [
+                    'youtube', 'vimeo', 'dailymotion', 'wistia', 
+                    'video', '.mp4', '.webm', '.ogg'
+                ])
+            )
+            
+            if is_video:
+                video_data = {
                     "id": hashlib.md5(full_url.encode()).hexdigest()[:12],
                     "url": full_url,
                     "type": "video" if video.name == "video" else "iframe",
@@ -303,7 +313,32 @@ def extract_media_assets(
                     "priority": 60,
                     "context": video.get("title", "") or "Video",
                 }
-            )
+                
+                # Try to extract thumbnail
+                try:
+                    from .utils.video_thumbnails import VideoThumbnailExtractor
+                    extractor = VideoThumbnailExtractor()
+                    
+                    # Extract thumbnail for this specific video
+                    video_elements = [{
+                        'url': full_url,
+                        'type': video_data["type"],
+                        'poster': video.get("poster", ""),
+                        'title': video.get("title", "")
+                    }]
+                    
+                    thumbnails = extractor.extract_video_thumbnails(video_elements, base_url)
+                    if thumbnails:
+                        thumbnail = thumbnails[0]
+                        video_data["thumbnail_url"] = thumbnail["thumbnail_url"]
+                        video_data["thumbnail_type"] = thumbnail["thumbnail_type"]
+                        video_data["thumbnail_source"] = thumbnail["source"]
+                        if thumbnail.get("is_placeholder"):
+                            video_data["is_placeholder_thumbnail"] = True
+                except ImportError:
+                    pass  # Fallback to basic video data without thumbnails
+                
+                all_media.append(video_data)
 
     # Extract documents
     for link in soup.find_all("a", href=True):

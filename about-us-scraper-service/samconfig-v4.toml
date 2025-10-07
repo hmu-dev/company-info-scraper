@@ -1,0 +1,20 @@
+version = 0.1
+
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "ai-web-scraper-v4"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-bvkoifunda1u"
+s3_prefix = "ai-web-scraper-v4"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = [
+    "Environment=dev",
+    "DailyCostThreshold=10.0",
+    "HourlyBedrockCostThreshold=1.0",
+    "RateLimitRPM=60",
+    "RateLimitBurst=10",
+    "LogRetentionDays=14"
+]
+image_repositories = []

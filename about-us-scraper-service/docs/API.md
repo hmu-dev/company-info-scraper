@@ -80,7 +80,7 @@ Extracts images and videos from a website.
 
 ```json
 {
-  "success": true,
+"success": true,
   "data": {
     "items": [
       {

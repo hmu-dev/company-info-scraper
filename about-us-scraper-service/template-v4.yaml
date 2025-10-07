@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Description: AI Web Scraper API - Version 4.0 (Remote Team Compatible Schema)
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+  DailyCostThreshold:
+    Type: Number
+    Default: 10.0
+  HourlyBedrockCostThreshold:
+    Type: Number
+    Default: 1.0
+  RateLimitRPM:
+    Type: Number
+    Default: 60
+  RateLimitBurst:
+    Type: Number
+    Default: 10
+  LogRetentionDays:
+    Type: Number
+    Default: 14
+
+Resources:
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref Environment
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: !Ref RateLimitBurst
+        ThrottlingRateLimit: !Ref RateLimitRPM
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "Content-Type"
+          - "X-Amz-Date"
+          - "Authorization"
+          - "X-Api-Key"
+          - "X-Amz-Security-Token"
+          - "X-Amz-User-Agent"
+        AllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "OPTIONS"
+        MaxAge: 300
+
+  # Lambda Function
+  ScraperFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: lambda_handler_v4.lambda_handler
+      Runtime: python3.9
+      MemorySize: 512
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /{proxy+}
+            Method: ANY
+        HealthEvent:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ApiGateway
+            Path: /health
+            Method: GET
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL - Version 4.0"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/"
+  HealthEndpoint:
+    Description: "Health check endpoint - Version 4.0"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/health"
+  DocsEndpoint:
+    Description: "API documentation endpoint - Version 4.0"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/docs"

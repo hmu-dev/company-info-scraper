@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Web Scraper - Testing Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            margin-top: 20px;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .result-header h3 {
+            color: #333;
+        }
+        
+        .copy-btn {
+            padding: 6px 12px;
+            font-size: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #c33;
+        }
+        
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3c3;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: -2px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .example-urls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .example-url {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .example-url:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Web Scraper</h1>
+            <p>Test the API v4.0 - Remote Team Compatible</p>
+        </div>
+        
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('v4')">API v4.0 (New)</button>
+                <button class="tab" onclick="switchTab('health')">Health Check</button>
+            </div>
+            
+            <!-- V4 Tab -->
+            <div id="v4-tab" class="tab-content active">
+                <div class="input-group">
+                    <label for="api-endpoint">API Endpoint</label>
+                    <input type="text" id="api-endpoint" value="http://localhost:3001" placeholder="API Gateway URL">
+                </div>
+                
+                <div class="input-group">
+                    <label for="url-input">Website URL to Scrape</label>
+                    <input type="text" id="url-input" value="ambiancesf.com/pages/about" placeholder="Enter URL (e.g., company.com/about)">
+                </div>
+                
+                <div class="input-group">
+                    <label>Example URLs</label>
+                    <div class="example-urls">
+                        <span class="example-url" onclick="setUrl('ambiancesf.com/pages/about')">Ambiance SF</span>
+                        <span class="example-url" onclick="setUrl('github.com/about')">GitHub</span>
+                        <span class="example-url" onclick="setUrl('stripe.com/about')">Stripe</span>
+                        <span class="example-url" onclick="setUrl('openai.com/about')">OpenAI</span>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="max-sections">Max Sections (1-10)</label>
+                    <input type="number" id="max-sections" value="5" min="1" max="10">
+                </div>
+                
+                <div class="input-group">
+                    <label for="max-key-values">Max Key-Value Pairs (1-5)</label>
+                    <input type="number" id="max-key-values" value="3" min="1" max="5">
+                </div>
+                
+                <div class="input-group">
+                    <label>
+                        <input type="checkbox" id="use-ai" style="width: auto; margin-right: 8px;">
+                        Use AI Enhancement (slower but better quality)
+                    </label>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="testV4API()">🚀 Scrape with v4.0</button>
+                    <button class="btn-secondary" onclick="clearResults()">Clear Results</button>
+                </div>
+                
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px;">Scraping website... This may take 10-30 seconds</p>
+                </div>
+                
+                <div id="result" class="result" style="display: none;">
+                    <div class="result-header">
+                        <h3>Response</h3>
+                        <button class="copy-btn" onclick="copyResult()">📋 Copy JSON</button>
+                    </div>
+                    <pre id="result-content"></pre>
+                </div>
+            </div>
+            
+            <!-- Health Tab -->
+            <div id="health-tab" class="tab-content">
+                <div class="input-group">
+                    <label for="health-endpoint">API Endpoint</label>
+                    <input type="text" id="health-endpoint" value="http://localhost:3001" placeholder="API Gateway URL">
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="testHealth()">🔍 Check Health</button>
+                </div>
+                
+                <div id="health-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px;">Checking API health...</p>
+                </div>
+                
+                <div id="health-result" class="result" style="display: none;">
+                    <div class="result-header">
+                        <h3>Health Status</h3>
+                    </div>
+                    <pre id="health-result-content"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${tab}-tab`).classList.add('active');
+        }
+        
+        function setUrl(url) {
+            document.getElementById('url-input').value = url;
+        }
+        
+        async function testV4API() {
+            const endpoint = document.getElementById('api-endpoint').value;
+            const url = document.getElementById('url-input').value;
+            const maxSections = document.getElementById('max-sections').value;
+            const maxKeyValues = document.getElementById('max-key-values').value;
+            const useAI = document.getElementById('use-ai').checked;
+            
+            if (!url) {
+                alert('Please enter a URL to scrape');
+                return;
+            }
+            
+            // Show loading, hide results
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('result').style.display = 'none';
+            
+            try {
+                const apiUrl = `${endpoint}/scrape/text?url=${encodeURIComponent(url)}&max_sections=${maxSections}&max_key_values=${maxKeyValues}&use_ai_enhancement=${useAI}`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                // Hide loading, show results
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('result').style.display = 'block';
+                
+                const resultContent = document.getElementById('result-content');
+                resultContent.textContent = JSON.stringify(data, null, 2);
+                resultContent.className = response.ok ? '' : 'error';
+                
+            } catch (error) {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('result').style.display = 'block';
+                
+                const resultContent = document.getElementById('result-content');
+                resultContent.textContent = `Error: ${error.message}\n\nMake sure the API is deployed and accessible.`;
+                resultContent.className = 'error';
+            }
+        }
+        
+        async function testHealth() {
+            const endpoint = document.getElementById('health-endpoint').value;
+            
+            // Show loading, hide results
+            document.getElementById('health-loading').classList.add('active');
+            document.getElementById('health-result').style.display = 'none';
+            
+            try {
+                const apiUrl = `${endpoint}/health`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                // Hide loading, show results
+                document.getElementById('health-loading').classList.remove('active');
+                document.getElementById('health-result').style.display = 'block';
+                
+                const resultContent = document.getElementById('health-result-content');
+                resultContent.textContent = JSON.stringify(data, null, 2);
+                resultContent.className = response.ok ? 'success' : 'error';
+                
+            } catch (error) {
+                document.getElementById('health-loading').classList.remove('active');
+                document.getElementById('health-result').style.display = 'block';
+                
+                const resultContent = document.getElementById('health-result-content');
+                resultContent.textContent = `Error: ${error.message}\n\nMake sure the API is deployed and accessible.`;
+                resultContent.className = 'error';
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('result-content').textContent = '';
+        }
+        
+        function copyResult() {
+            const content = document.getElementById('result-content').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+
+
