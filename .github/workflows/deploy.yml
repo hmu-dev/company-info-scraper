@@ -86,7 +86,7 @@ jobs:
     name: Deploy to AWS
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main' && secrets.AWS_ACCESS_KEY_ID != ''
+    if: github.ref == 'refs/heads/main'
     environment: production
     
     steps:
@@ -98,6 +98,20 @@ jobs:
         with:
           name: sam-build-artifacts
           path: about-us-scraper-service/.aws-sam/
+
+      - name: Check AWS credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "❌ AWS_ACCESS_KEY_ID secret not found"
+            echo "Please configure AWS credentials in GitHub repository secrets"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "❌ AWS_SECRET_ACCESS_KEY secret not found"
+            echo "Please configure AWS credentials in GitHub repository secrets"
+            exit 1
+          fi
+          echo "✅ AWS credentials found"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
