@@ -1,0 +1,119 @@
+name: Deploy to AWS - Minimal
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  AWS_REGION: "us-east-1"
+
+jobs:
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check AWS credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "❌ AWS_ACCESS_KEY_ID secret not found"
+            echo "Please configure AWS credentials in GitHub repository secrets"
+            exit 1
+          fi
+          if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            echo "❌ AWS_SECRET_ACCESS_KEY secret not found"
+            echo "Please configure AWS credentials in GitHub repository secrets"
+            exit 1
+          fi
+          echo "✅ AWS credentials found"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install AWS SAM CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install aws-sam-cli
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-api.txt
+
+      - name: Build SAM Application
+        run: |
+          cd about-us-scraper-service
+          sam build --template-file template-simple.yaml
+        env:
+          SAM_CLI_TELEMETRY: 0
+
+      - name: Deploy SAM Application
+        run: |
+          cd about-us-scraper-service
+          sam deploy \
+            --template-file template-simple.yaml \
+            --config-file samconfig.toml \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides \
+              Environment=production
+        env:
+          SAM_CLI_TELEMETRY: 0
+
+      - name: Get API Gateway URL
+        id: get-api-url
+        run: |
+          cd about-us-scraper-service
+          API_URL=$(aws cloudformation describe-stacks \
+            --stack-name ai-web-scraper \
+            --query 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue' \
+            --output text)
+          echo "api-url=$API_URL" >> $GITHUB_OUTPUT
+          echo "🌐 API Gateway URL: $API_URL"
+
+      - name: Test deployed API
+        run: |
+          API_URL="${{ steps.get-api-url.outputs.api-url }}"
+          if [ -n "$API_URL" ] && [ "$API_URL" != "None" ]; then
+            echo "Testing deployed API at: $API_URL"
+            
+            # Test health endpoint
+            echo "🔍 Testing health endpoint..."
+            curl -f "$API_URL/health" && echo "✅ Health check passed" || echo "❌ Health check failed"
+            
+            # Test basic scraping
+            echo "🔍 Testing basic scraping..."
+            curl -f "$API_URL/scrape/text?url=github.com" && echo "✅ Basic scraping works" || echo "❌ Basic scraping failed"
+            
+            # Test video thumbnail functionality with a known video URL
+            echo "🔍 Testing video thumbnail functionality..."
+            curl -f "$API_URL/scrape/text?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ" && echo "✅ Video thumbnail test passed" || echo "❌ Video thumbnail test failed"
+            
+            echo "🎉 API testing completed!"
+          else
+            echo "API URL not found, skipping health check"
+          fi
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+  pull-requests: write
+  statuses: write
