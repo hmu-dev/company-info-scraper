@@ -43,26 +43,22 @@ jobs:
           import sys
           sys.path.insert(0, '.')
           try:
+              # Test main API imports
               from api.main import app
               print('✅ FastAPI app import successful')
               print(f'App title: {app.title}')
               
-              # Test all middleware imports
-              from api.middleware.compression import CompressionMiddleware
-              from api.middleware.validation import ValidationMiddleware
-              from api.middleware.rate_limit import RateLimitMiddleware
-              from api.middleware.tracing import TracingMiddleware
-              print('✅ All middleware imports successful')
+              # Test video thumbnail functionality
+              from api.utils.video_thumbnails import VideoThumbnailExtractor, extract_video_thumbnails_from_soup
+              print('✅ Video thumbnail imports successful')
               
-              # Test all service imports
-              from api.services.llm import LLMService
-              from api.services.media import MediaService
-              print('✅ All service imports successful')
+              # Test API v4 imports
+              from api.main_v4 import app as app_v4
+              print('✅ API v4 import successful')
               
-              # Test all endpoint imports
-              from api.endpoints.media import router as media_router
-              from api.endpoints.profile import router as profile_router
-              print('✅ All endpoint imports successful')
+              # Test split API imports
+              from api.main_split import app as app_split
+              print('✅ Split API import successful')
               
               print('🎉 ALL API IMPORTS WORKING! 🎉')
               
@@ -76,7 +72,7 @@ jobs:
       - name: Build SAM Application
         run: |
           cd about-us-scraper-service
-          sam build
+          sam build --template-file template-simple.yaml
         env:
           SAM_CLI_TELEMETRY: 0
 
@@ -125,13 +121,13 @@ jobs:
         run: |
           cd about-us-scraper-service
           sam deploy \
+            --template-file template-simple.yaml \
+            --config-file samconfig.toml \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
-              Environment=production \
-              Version=${{ github.sha }} \
-              BuildDate=${{ github.event.head_commit.timestamp }}
+              Environment=production
         env:
           SAM_CLI_TELEMETRY: 0
 
@@ -140,8 +136,8 @@ jobs:
         run: |
           cd about-us-scraper-service
           API_URL=$(aws cloudformation describe-stacks \
-            --stack-name about-us-scraper-service \
-            --query 'Stacks[0].Outputs[?OutputKey==`ApiGatewayUrl`].OutputValue' \
+            --stack-name ai-web-scraper \
+            --query 'Stacks[0].Outputs[?OutputKey==`ApiEndpoint`].OutputValue' \
             --output text)
           echo "api-url=$API_URL" >> $GITHUB_OUTPUT
           echo "🌐 API Gateway URL: $API_URL"
@@ -151,7 +147,20 @@ jobs:
           API_URL="${{ steps.get-api-url.outputs.api-url }}"
           if [ -n "$API_URL" ] && [ "$API_URL" != "None" ]; then
             echo "Testing deployed API at: $API_URL"
-            curl -f "$API_URL/health" || echo "Health check failed, but deployment completed"
+            
+            # Test health endpoint
+            echo "🔍 Testing health endpoint..."
+            curl -f "$API_URL/health" && echo "✅ Health check passed" || echo "❌ Health check failed"
+            
+            # Test basic scraping
+            echo "🔍 Testing basic scraping..."
+            curl -f "$API_URL/scrape/text?url=github.com" && echo "✅ Basic scraping works" || echo "❌ Basic scraping failed"
+            
+            # Test video thumbnail functionality with a known video URL
+            echo "🔍 Testing video thumbnail functionality..."
+            curl -f "$API_URL/scrape/text?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ" && echo "✅ Video thumbnail test passed" || echo "❌ Video thumbnail test failed"
+            
+            echo "🎉 API testing completed!"
           else
             echo "API URL not found, skipping health check"
           fi
