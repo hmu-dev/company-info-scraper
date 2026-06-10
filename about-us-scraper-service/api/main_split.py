@@ -327,7 +327,11 @@ def extract_media_assets(
                         'title': video.get("title", "")
                     }]
                     
-                    thumbnails = extractor.extract_video_thumbnails(video_elements, base_url)
+                    thumbnails = extractor.extract_video_thumbnails(
+                        video_elements, 
+                        base_url,
+                        page_url=base_url
+                    )
                     if thumbnails:
                         thumbnail = thumbnails[0]
                         video_data["thumbnail_url"] = thumbnail["thumbnail_url"]
@@ -416,6 +420,13 @@ def extract_media_assets(
         "current_page_count": len(page_media),
         "has_more": end_index < len(all_media),
     }
+
+    # Clean up browser if extractor was used
+    try:
+        if 'extractor' in locals():
+            extractor.close()
+    except:
+        pass
 
     return {
         "media_assets": page_media,

@@ -17,6 +17,7 @@ from urllib.parse import urlparse, parse_qs
 
 from PIL import Image, ImageDraw, ImageFont
 import requests
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeout
 
 
 class VideoThumbnailExtractor:
@@ -26,11 +27,14 @@ class VideoThumbnailExtractor:
         self.default_width = default_width
         self.default_height = default_height
         self.placeholder_cache = {}
+        self._playwright = None
+        self._browser = None
     
     def extract_video_thumbnails(
         self, 
         video_elements: List[Dict], 
-        base_url: str
+        base_url: str,
+        page_url: Optional[str] = None
     ) -> List[Dict[str, str]]:
         """
         Extract thumbnails from video elements with multiple strategies
@@ -88,7 +92,21 @@ class VideoThumbnailExtractor:
                 })
                 continue
             
-            # Strategy 4: Generate placeholder thumbnail
+            # Strategy 4: Screenshot the video element on the page
+            if page_url:
+                screenshot_thumbnail = self._screenshot_video_element(video_url, page_url)
+                if screenshot_thumbnail:
+                    thumbnails.append({
+                        'video_url': video_url,
+                        'thumbnail_url': screenshot_thumbnail,
+                        'thumbnail_type': 'screenshot',
+                        'source': 'page_screenshot',
+                        'width': self.default_width,
+                        'height': self.default_height
+                    })
+                    continue
+            
+            # Strategy 5: Generate placeholder thumbnail
             placeholder_thumbnail = self._generate_placeholder_thumbnail(video_url, video_type)
             thumbnails.append({
                 'video_url': video_url,
@@ -225,6 +243,89 @@ class VideoThumbnailExtractor:
             return None
             
         except Exception:
+            return None
+    
+    def _get_browser(self):
+        """Get or create Playwright browser instance (lazy loading)"""
+        if self._browser is None:
+            if self._playwright is None:
+                self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.launch(headless=True)
+        return self._browser
+    
+    def close(self):
+        """Close browser and playwright instances"""
+        if self._browser:
+            self._browser.close()
+            self._browser = None
+        if self._playwright:
+            self._playwright.stop()
+            self._playwright = None
+    
+    def _screenshot_video_element(
+        self, 
+        video_url: str, 
+        page_url: str,
+        timeout: int = 10000
+    ) -> Optional[str]:
+        """
+        Screenshot the video element as it appears on the webpage
+        
+        Args:
+            video_url: URL of the video (used to locate the element)
+            page_url: URL of the webpage containing the video
+            timeout: Max time to wait for page/element load (ms)
+            
+        Returns:
+            Base64 data URL of the screenshot, or None if failed
+        """
+        try:
+            browser = self._get_browser()
+            page = browser.new_page()
+            
+            # Navigate to the page
+            page.goto(page_url, timeout=timeout, wait_until='networkidle')
+            
+            # Try to find the video element by src attribute
+            video_selector = None
+            
+            # Try video[src] first
+            video_elements = page.query_selector_all('video[src]')
+            for element in video_elements:
+                src = element.get_attribute('src')
+                if src and (src in video_url or video_url in src):
+                    video_selector = element
+                    break
+            
+            # Try iframe[src] for embedded videos
+            if not video_selector:
+                iframe_elements = page.query_selector_all('iframe[src]')
+                for element in iframe_elements:
+                    src = element.get_attribute('src')
+                    if src and (src in video_url or video_url in src):
+                        video_selector = element
+                        break
+            
+            # If found, take screenshot
+            if video_selector:
+                # Wait a moment for poster to load
+                page.wait_for_timeout(1000)
+                
+                # Screenshot the element
+                screenshot_bytes = video_selector.screenshot()
+                
+                # Convert to base64 data URL
+                img_base64 = base64.b64encode(screenshot_bytes).decode()
+                data_url = f"data:image/png;base64,{img_base64}"
+                
+                page.close()
+                return data_url
+            
+            page.close()
+            return None
+            
+        except (PlaywrightTimeout, Exception) as e:
+            print(f"Screenshot failed for {video_url}: {str(e)}")
             return None
     
     def _generate_placeholder_thumbnail(

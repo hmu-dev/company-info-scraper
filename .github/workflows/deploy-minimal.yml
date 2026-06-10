@@ -1,4 +1,4 @@
-name: Deploy to AWS - Optimized
+name: Deploy to AWS - Minimal
 
 on:
   push:
@@ -46,21 +46,15 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
-      - name: Install system dependencies
+      - name: Install AWS SAM CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y zip
-
-      - name: Install AWS SAM CLI (optimized)
-        run: |
-          # Use pip to install SAM CLI (faster than other methods)
           python -m pip install --upgrade pip
-          pip install aws-sam-cli --no-cache-dir
-          sam --version
+          pip install aws-sam-cli
 
-      - name: Install project dependencies
+      - name: Install dependencies
         run: |
-          pip install -r requirements-api.txt --no-cache-dir
+          python -m pip install --upgrade pip
+          pip install -r requirements-api.txt
 
       - name: Build SAM Application
         run: |
@@ -113,7 +107,6 @@ jobs:
             curl -f "$API_URL/scrape/text?url=https://www.youtube.com/watch?v=dQw4w9WgXcQ" && echo "✅ Video thumbnail test passed" || echo "❌ Video thumbnail test failed"
             
             echo "🎉 API testing completed!"
-            echo "🚀 Deployed API URL: $API_URL"
           else
             echo "API URL not found, skipping health check"
           fi
